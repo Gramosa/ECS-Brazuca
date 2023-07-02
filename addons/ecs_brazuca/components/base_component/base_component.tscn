@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/base_component/base_component.gd" id="1_4u1w6"]
+
+[node name="BaseComponent" type="Node"]
+script = ExtResource("1_4u1w6")

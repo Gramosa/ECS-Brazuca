@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bkej2c6sy1rwl"]
+
+[ext_resource type="Script" path="res://itens/test_material/entities/enemy_example/enemy_test.gd" id="1_8fo7y"]
+[ext_resource type="Texture2D" uid="uid://bmnnlgmdc5elw" path="res://icon.svg" id="1_kjfx8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y5tux"]
+size = Vector2(57, 56.5)
+
+[node name="EnemyTest" type="Area2D"]
+position = Vector2(82, 52)
+script = ExtResource("1_8fo7y")
+
+[node name="Enemy" type="Sprite2D" parent="."]
+modulate = Color(0.776471, 0, 0.309804, 1)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_kjfx8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_y5tux")

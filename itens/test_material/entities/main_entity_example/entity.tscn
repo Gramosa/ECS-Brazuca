@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://itens/test_material/entities/main_entity_example/entity_example.gd" id="1_n0lda"]
+[ext_resource type="Texture2D" uid="uid://bmnnlgmdc5elw" path="res://icon.svg" id="3_xcs8j"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_75x6p"]
+size = Vector2(114.25, 113)
+
+[node name="EntityExample" type="Node2D"]
+script = ExtResource("1_n0lda")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("3_xcs8j")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_75x6p")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="1_f7ai7"]
+
+[node name="DamageComponent" type="Node"]
+script = ExtResource("1_f7ai7")

@@ -98,17 +98,16 @@ func _update_entity_with_component(entity: Node, component: Node, component_grou
 	# Add the component to the component list of the corresponding component group (4th level)
 	entities[entity_name][1][component_group].append(component)
 	
-# Maybe not necesssary, since _on_component_added do the same, but better :p
-"""
+## Utilize if a system be added at runtime, to populate the entities variable
 func load_entities_from_group(component_group: String):
-	# Get all the nodes belonging to the specified component group 
+	# Get all the nodes belonging to the specified component group
 	var members_from_group: Array = get_tree().get_nodes_in_group(component_group)
 	for component in members_from_group:
 		# Find the closest parent node of the component that is of type Node2D
 		var entity = get_closest_parent_from_type(component, "Node2D")
 		
 		_update_entity_with_component(entity, component, component_group)
-"""
+
 ## Check recursivaly if the parent of node inherits from a specifief type, if not check the grandparent, great_grandfather...
 ## If no one inherits from the specified parent_type the own node will be returned (argument "node")
 ## Important, does not need to inherity direct, but an ancestor must be from this parent_type. 

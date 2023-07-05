@@ -14,6 +14,3 @@ func _init() -> void:
 	
 	add_to_group("EffectComponentGroup", true)
 
-func _ready() -> void:
-	super()
-

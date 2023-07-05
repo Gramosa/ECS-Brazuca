@@ -8,7 +8,7 @@ extends Node
 ## - MUST override the function get_class_name to return the apropriate name of the class (Not much important, only for raise warnings purposes)
 class_name BaseSystem
 
-## An array of component group names that entities must belong to in order to be added to the `entities` dictionary.
+## An array of component groups names that entities must belong to in order to be added to the `entities` dictionary.
 ## Each component must be in at least one of these groups to be considered by the system.
 var _components_requireds: Array[String] = []
 
@@ -201,11 +201,11 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 	
 	var number_of_components_from_same_group: int = len(entities[entity_name][1][component_group])
 	if number_of_components_from_same_group == 0:
-		#push_warning("The system {0} somehow have the entity {1} with component group {2}, but the group is empty".format([self.get_name(), entity_name, component_group]))
+		push_warning("The system {0} somehow have the entity {1} with component group {2}, but the group is empty".format([self.get_name(), entity_name, component_group]))
 		return false
 	
 	if number_of_components_from_same_group >= 2 and specific_component_name == "":
-		#push_warning("The entity '{0}' has multiple components from the group '{1}'. The system '{2}' cannot determine which component to use for the operation. Please specify a specific component name. The operation will be ignored.".format([entity_name, component_group, self.get_class_name()]))
+		push_warning("The entity '{0}' has multiple components from the group '{1}'. The system '{2}' cannot determine which component to use for the operation. Please specify a specific component name. The operation will be ignored.".format([entity_name, component_group, self.get_class_name()]))
 		return false
 	
 	return true

@@ -1,17 +1,19 @@
-[gd_scene load_steps=6 format=3 uid="uid://ddn68rnno11mq"]
+[gd_scene load_steps=7 format=3 uid="uid://ddn68rnno11mq"]
 
 [ext_resource type="PackedScene" path="res://itens/test_material/entities/main_entity_example/entity.tscn" id="1_8mb57"]
-[ext_resource type="PackedScene" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.tscn" id="1_aht3e"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_e20wk"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="2_f2dn4"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="4_l1iww"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/effect_component/effect_component.gd" id="5_gmcvy"]
 [ext_resource type="PackedScene" uid="uid://bkej2c6sy1rwl" path="res://itens/test_material/entities/enemy_example/enemy_test.tscn" id="5_nacf5"]
 
 [node name="TestECS" type="Node"]
 
 [node name="Systems" type="Node" parent="."]
 
-[node name="DamageSystem" parent="Systems" instance=ExtResource("1_aht3e")]
+[node name="DamageSystem" type="Node" parent="Systems"]
 unique_name_in_owner = true
+script = ExtResource("1_e20wk")
 
 [node name="PlayerTest" parent="." instance=ExtResource("1_8mb57")]
 z_index = 1
@@ -21,11 +23,13 @@ position = Vector2(293, 166)
 script = ExtResource("2_f2dn4")
 max_health = 50000
 initial_health = 50000
-ignore_signal_warnings = true
 
 [node name="DamageComponent" type="Node" parent="PlayerTest"]
 script = ExtResource("4_l1iww")
 damage = 500
+
+[node name="EffectComponent" type="Node" parent="PlayerTest"]
+script = ExtResource("5_gmcvy")
 
 [node name="Enemies" type="Node2D" parent="."]
 

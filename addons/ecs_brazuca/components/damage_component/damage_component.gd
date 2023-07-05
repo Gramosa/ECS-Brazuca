@@ -10,8 +10,9 @@ class_name DamageComponent
 @export_group("Effect")
 ## If true effects can be applied according a EffectComponent
 @export var apply_effect: bool = false
+
 ## The effects applied, only works if apply_effect is true
-@export var effects: EffectComponent
+@export var effect_component: EffectComponent
 
 func _init() -> void:
 	super()

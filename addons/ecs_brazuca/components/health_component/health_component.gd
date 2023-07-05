@@ -52,6 +52,7 @@ var health: int
 func _init():
 	super()
 	
+	_target_entity_type = "Node2D"
 	add_to_group("HealthComponentGroup", true)
 
 func get_health() -> int:

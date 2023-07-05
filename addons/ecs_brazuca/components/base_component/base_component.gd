@@ -36,6 +36,9 @@ const COMPONENT_WARNINGS = {
 ## The IdentityComponent node, its preferable to be a simbling. The IdentityComponent load the data from the JSONS files at runtime execution
 @export var identity_component: IdentityComponent
 
+## Used by get_closest_parent_from_type to search for the parent
+var _target_entity_type: String = "Node2D"
+
 ## Used for the components as a workaround to get_class() problem (if necessary)
 func get_class_name():
 	return "BaseComponent"

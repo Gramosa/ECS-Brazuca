@@ -10,6 +10,7 @@ extends BaseComponent
 func _init() -> void:
 	super()
 	
+	#_target_entity_type = "Node2D"
 	#add_to_group("MyComponentGroup", true)
 
 

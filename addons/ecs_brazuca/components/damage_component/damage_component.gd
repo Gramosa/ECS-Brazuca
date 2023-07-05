@@ -19,10 +19,6 @@ func _init() -> void:
 	
 	add_to_group("DamageComponentGroup", true)
 
-func _ready() -> void:
-	# Sinalize the systems when the component is _ready calling the function BaseSystem._on_component_added()
-	super()
-
 func get_damage():
 	return damage
 

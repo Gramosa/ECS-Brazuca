@@ -45,13 +45,7 @@ func get_class_name():
 
 func _init() -> void:
 	add_to_group("Components", true)
-
-func _ready() -> void:
-	# Once the component is _ready() it will call Systems inside the Systems group and pass self as argument
-	if get_tree().has_group("Systems") == true:
-		get_tree().call_group("Systems", "_on_component_added", self)
-	else:
-		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
+	
 
 ## Check recursivaly if the parent of node inherits from a specifief type, if not check the grandparent, great_grandfather...
 ## If no one inherits from the specified parent_type the own node will be returned (argument "node")
@@ -72,6 +66,13 @@ func get_closest_parent_from_type(node: Node, parent_type: String) -> Node:
 	
 	push_warning("The node \"{0}\" does not have a parent who have \"{1}\" as ancestor, the own node \"{0}\" will be returned instead".format([node, parent_type]))
 	return node
+
+func _enter_tree() -> void:
+	# Once the component is inside the tree it will tell all Systems calling _on_component_added for all Systems pass self as argument
+	if get_tree().has_group("Systems") == true:
+		get_tree().call_group("Systems", "_on_component_added", self)
+	else:
+		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
 
 func _exit_tree() -> void:
 	# If there is a system in the tree, it will comunicate each system about the remotion, so each system can deal with this remotion

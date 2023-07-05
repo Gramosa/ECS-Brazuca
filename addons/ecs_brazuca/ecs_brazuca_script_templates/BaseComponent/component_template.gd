@@ -14,8 +14,8 @@ func _init() -> void:
 	#add_to_group("MyComponentGroup", true)
 
 
-## Do NOT override _ready, utilize super() at beggin
-func _ready() -> void:
+## Do NOT override _enter_tree(), utilize super() at beggin
+func _enter_tree() -> void:
 	super()
 
 

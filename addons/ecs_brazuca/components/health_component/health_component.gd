@@ -59,7 +59,6 @@ func get_health() -> int:
 	return health
 
 func _ready() -> void:
-	super()
 	
 	#Verify if the signals was connected
 	if ignore_signal_warnings == false:

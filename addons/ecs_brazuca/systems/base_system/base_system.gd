@@ -209,3 +209,19 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 		return false
 	
 	return true
+
+## Work with can_system_operate_entity, this function will return the component instead of true or false
+## Usualy used by the system to take the reference of the component
+func get_commponent_from_entity(entity: Node, component_group: String, specific_component_name: String = ""):
+	var entity_name: String = entity.get_name()
+	if can_system_operate_entity(entity, component_group, specific_component_name) == true:
+		## If passe the tests with specific_component_name equal to "", means there is only one component from the component_group
+		if specific_component_name == "":
+			return entities[entity_name][1][component_group][0]
+		
+		for component in entities[entity_name][1][component_group]:
+			var component_name = component.get_name()
+			if component_name == specific_component_name:
+				return component
+				
+	return null

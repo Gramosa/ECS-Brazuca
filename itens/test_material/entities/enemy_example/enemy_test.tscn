@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://bkej2c6sy1rwl"]
+[gd_scene load_steps=5 format=3 uid="uid://bkej2c6sy1rwl"]
 
 [ext_resource type="Script" path="res://itens/test_material/entities/enemy_example/enemy_test.gd" id="1_8fo7y"]
 [ext_resource type="Texture2D" uid="uid://bmnnlgmdc5elw" path="res://icon.svg" id="1_kjfx8"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="3_ox0fj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_y5tux"]
 size = Vector2(57, 56.5)
@@ -10,6 +11,10 @@ size = Vector2(57, 56.5)
 position = Vector2(82, 52)
 script = ExtResource("1_8fo7y")
 
+[node name="DamageComponent" type="Node" parent="."]
+script = ExtResource("3_ox0fj")
+damage = 50
+
 [node name="Enemy" type="Sprite2D" parent="."]
 modulate = Color(0.776471, 0, 0.309804, 1)
 scale = Vector2(0.5, 0.5)
@@ -17,3 +22,5 @@ texture = ExtResource("1_kjfx8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_y5tux")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

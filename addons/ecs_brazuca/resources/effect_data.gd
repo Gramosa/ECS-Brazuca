@@ -14,7 +14,7 @@ enum EffectTypes {NOTHING=0, CONTINUOUS_DAMAGE=1, STUN=2, DAMAGE_DEBUFF=3, RESIS
 ## MUST add a new structure to each EffectType
 const effects_structures: Dictionary = {
 	"any": {
-		"duraction": 0
+		"duraction": 0.0
 	},
 	EffectTypes.CONTINUOUS_DAMAGE: {
 		"damage_per_second": 1
@@ -30,8 +30,8 @@ const effects_structures: Dictionary = {
 	}
 }
 
-##
-@export var effect_name: String
+## The specific name of the effect, just for visual behaviour and/or organization, like Burn, Freeze and etc... 
+@export_placeholder("The name of the effect") var effect_name: String
 
 ## Chose one of the existents effects, expect for NOTHING, because well... its does nothing
 @export var effect_type: EffectTypes = EffectTypes.NOTHING:

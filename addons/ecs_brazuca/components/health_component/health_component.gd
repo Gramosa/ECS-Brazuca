@@ -30,6 +30,10 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 	set(new_initial_health):
 		initial_health = clamp(new_initial_health, 0, max_health)
 
+## The ratio of the resistance based always on the max_health, high numbers means more resistance.
+## Utilized by the systems
+@export_range(0.01, 100) var resistance_ratio: float = 1
+
 @export_group("Health Point Colors")
 ## Display the actual health everytime update_health() are called, its just a visual number.
 @export var visible_health_points: bool = true
@@ -58,6 +62,9 @@ func _init():
 func get_health() -> int:
 	return health
 
+func get_resistance_ratio() -> float:
+	return resistance_ratio
+
 func _ready() -> void:
 	
 	#Verify if the signals was connected
@@ -78,6 +85,7 @@ func verify_connections() -> void:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([health_changed.get_name(), self.get_name()]))
 
 func update_health(damage : int) -> void:
+	
 	var new_health = clamp(health - damage, 0, max_health)
 	var health_behaviour: HealthChangeBehaviour
 	

@@ -18,15 +18,15 @@ func _input(event):
 		print(damage_system.entities)
 		
 
-func _on_health_component_health_changed(_new_health: int, behaviour: HealthComponent.HealthChangeBehaviour):
+func _on_health_component_health_changed(new_health: int, behaviour: HealthComponent.HealthChangeBehaviour):
 	if behaviour == HealthComponent.HealthChangeBehaviour.DAMAGED:
-		print("Levou Dano")
+		print("levou dano")
 	
 	elif behaviour == HealthComponent.HealthChangeBehaviour.HEALED:
 		print("Curou")
 	
 	elif behaviour == HealthComponent.HealthChangeBehaviour.HEALTH_NOT_CHANGED:
-		print("Just want to see, nothing changed")
+		print("nada muda")
 
 func _on_health_component_health_depleted():
 	self.hide()

@@ -1,6 +1,6 @@
 extends Area2D
 
-@onready var damage_system: Node = get_node("%DamageSystem")
+@onready var damage_system: Node = get_node("/root/TestECS/Systems/DamageSystem")
 
 # Variables for the movement, not related to the ECS
 var velocity: int = randi_range(50, 150)

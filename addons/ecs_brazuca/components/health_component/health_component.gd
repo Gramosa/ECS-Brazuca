@@ -17,6 +17,7 @@ signal health_changed(new_health: int, behaviour: HealthChangeBehaviour)
 const health_points_path: PackedScene = preload("health_points.tscn")
 
 @export_group("Health")
+
 ## The max_health value, during runtime change this value using the method change_max_health()
 @export var max_health: int:
 	set(new_max_health):
@@ -32,9 +33,10 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 
 ## The ratio of the resistance based always on the max_health, high numbers means more resistance.
 ## Utilized by the systems
-@export_range(0.01, 100) var resistance_ratio: float = 1
+@export_range(0.001, 1000) var resistance_ratio: float = 1
 
 @export_group("Health Point Colors")
+
 ## Display the actual health everytime update_health() are called, its just a visual number.
 @export var visible_health_points: bool = true
 
@@ -67,6 +69,7 @@ func get_resistance_ratio() -> float:
 
 func _ready() -> void:
 	
+	"""No futuro transferir a chamada dessa função para BaseComponent"""
 	#Verify if the signals was connected
 	if ignore_signal_warnings == false:
 		verify_connections()

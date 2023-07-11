@@ -8,7 +8,7 @@ class_name DamageComponent
 @export var damage: int
 
 ## The rate applied of the damage based on the damage, high ratio means more damage
-@export_range(0.01, 100) var damage_ratio: float = 1
+@export_range(0.001, 1000) var damage_ratio: float = 1
 
 @export_group("Effect")
 ## If true effects can be applied according a EffectComponent

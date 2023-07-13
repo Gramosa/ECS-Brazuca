@@ -3,6 +3,7 @@ extends Node2D
 # Called when the node enters the scene tree for the first time.
 #@onready var damage_system: DamageSystem = get_node("../Systems/DamageSystem")
 @onready var damage_system: DamageSystem =  get_node("%DamageSystem")
+@onready var effect_system: EffectSystem = get_node("%EffectSystem")
 
 func _input(event):
 	"""Mudar no futuro a maneira de chamar a função do_damage, provavelmente usando sinais"""
@@ -18,20 +19,22 @@ func _input(event):
 		print(damage_system.entities)
 		
 
-func _on_health_component_health_changed(new_health: int, behaviour: HealthComponent.HealthChangeBehaviour):
-	if behaviour == HealthComponent.HealthChangeBehaviour.DAMAGED:
+func _on_health_component_health_changed(new_health: int, behaviour: HealthComponent.CHANGE_BEHAVIOUR):
+	if behaviour == HealthComponent.CHANGE_BEHAVIOUR.DECREASED:
+		effect_system.queue_effect(self, self, "Endurance")
 		print("levou dano")
 	
-	elif behaviour == HealthComponent.HealthChangeBehaviour.HEALED:
+	elif behaviour == HealthComponent.CHANGE_BEHAVIOUR.INCREASED:
 		print("Curou")
 	
-	elif behaviour == HealthComponent.HealthChangeBehaviour.HEALTH_NOT_CHANGED:
+	elif behaviour == HealthComponent.CHANGE_BEHAVIOUR.NOT_CHANGED:
 		print("nada muda")
+	
+	print("vida atual: " + str(new_health))
 
 func _on_health_component_health_depleted():
 	self.hide()
 	print("morreu")
-
 
 func _on_health_component_health_recovered():
 	self.show()

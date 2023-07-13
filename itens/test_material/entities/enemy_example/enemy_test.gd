@@ -3,7 +3,7 @@ extends Area2D
 @onready var damage_system: Node = get_node("/root/TestECS/Systems/DamageSystem")
 
 # Variables for the movement, not related to the ECS
-var velocity: int = randi_range(50, 150)
+var velocity: int = randi_range(50, 200)
 var direction: Vector2 = Vector2(1, 0)
 var start_position: Vector2
 var max_distance: float = 400.0

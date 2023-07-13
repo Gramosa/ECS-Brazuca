@@ -12,6 +12,7 @@ class_name BaseSystem
 ## Each component must be in at least one of these groups to be considered by the system.
 var _components_requireds: Array[String] = []
 
+## Important to know: an entity cannnot have two components with same name AND type, but it can have the same type with different names, or same name with different types.
 ## An entity can have any number of components, even components with same and same group.
 ##
 ## The `entities` variable is a dictionary of lists with a specific nested structure:

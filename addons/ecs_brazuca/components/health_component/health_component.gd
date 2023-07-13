@@ -5,14 +5,17 @@ extends BaseComponent
 ## This component is able to emit a health_points node (who have a short life, just to spam the actual health)
 class_name HealthComponent
 
-enum HealthChangeBehaviour {DAMAGED, HEALED, HEALTH_NOT_CHANGED}
+## Used by the signals to indicate how some propertie have changed based on the previous value it had
+enum CHANGE_BEHAVIOUR {DECREASED, INCREASED, NOT_CHANGED}
 
 ## Emited when the health reach to 0 for the first time, this means when the entity become dead (in other words).
 signal health_depleted
 ## Emitted when the health increase from 0 to any value, this means when the entity revive (in other words).
 signal health_recovered
 ## Emited every call of update_health(), so does not change the property health directly, use the method update_health().
-signal health_changed(new_health: int, behaviour: HealthChangeBehaviour)
+signal health_changed(new_health: int, behaviour: CHANGE_BEHAVIOUR)
+## Emited when the resistance_ratio was changed
+signal resistance_ratio_changed(new_resistance_ratio: float, behaviour: CHANGE_BEHAVIOUR)
 
 const health_points_path: PackedScene = preload("health_points.tscn")
 
@@ -86,11 +89,14 @@ func verify_connections() -> void:
 	
 	if len(health_changed.get_connections()) == 0:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([health_changed.get_name(), self.get_name()]))
+		
+	if len(resistance_ratio_changed.get_connections()) == 0:
+		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([resistance_ratio_changed.get_name(), self.get_name()]))
 
 func update_health(damage : int) -> void:
 	
 	var new_health = clamp(health - damage, 0, max_health)
-	var health_behaviour: HealthChangeBehaviour
+	var health_behaviour: CHANGE_BEHAVIOUR
 	
 	# If the new_health be 0 and the previous health was different than 0, this means the entity just died
 	if new_health == 0 and health != 0:
@@ -101,15 +107,15 @@ func update_health(damage : int) -> void:
 	
 	# If the new_health are high than the health, its mean a healing
 	if new_health > health:
-		health_behaviour = HealthChangeBehaviour.HEALED
+		health_behaviour = CHANGE_BEHAVIOUR.INCREASED
 
 	# If the new_health be equal to the health, nothing will change
 	elif new_health == health:
-		health_behaviour = HealthChangeBehaviour.HEALTH_NOT_CHANGED
+		health_behaviour = CHANGE_BEHAVIOUR.NOT_CHANGED
 	
 	# If the new_health is lower than the previuous one	
 	else:
-		health_behaviour = HealthChangeBehaviour.DAMAGED
+		health_behaviour = CHANGE_BEHAVIOUR.DECREASED
 	
 	health_changed.emit(new_health, health_behaviour)
 	health = new_health
@@ -117,23 +123,23 @@ func update_health(damage : int) -> void:
 	if visible_health_points == true:
 		show_health_points(health_behaviour)
 
-func show_health_points(health_behaviour: HealthChangeBehaviour) -> void:
+func show_health_points(health_behaviour: CHANGE_BEHAVIOUR) -> void:
 	
 	var health_points: Node2D = health_points_path.instantiate()
-	var closest_node2d_parent = get_closest_parent_from_type(self, "Node2D")
+	var closest_node2d_parent = get_closest_parent_from_type(self, _target_entity_type)
 	# If its equal than self, means there is not a parent who inherits from Node2D
 	# So the transform is not visible, meaning there is not a position to display the health points
 	if closest_node2d_parent != self:
 		var health_points_color: Color
 		# The color of health_points will be defined according the health_behaviour
 		match health_behaviour:
-			HealthChangeBehaviour.HEALED:
+			CHANGE_BEHAVIOUR.INCREASED:
 				health_points_color = color_healed
 				
-			HealthChangeBehaviour.HEALTH_NOT_CHANGED:
+			CHANGE_BEHAVIOUR.NOT_CHANGED:
 				health_points_color = color_nothing_changed
 			
-			HealthChangeBehaviour.DAMAGED:
+			CHANGE_BEHAVIOUR.DECREASED:
 				health_points_color = color_damaged
 		
 		health_points.setup(health, health_points_color)

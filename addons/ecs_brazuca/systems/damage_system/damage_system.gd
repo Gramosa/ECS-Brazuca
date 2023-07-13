@@ -12,14 +12,14 @@ func _init() -> void:
 
 ## if oposite_behaviour be true, the damage will be multiplied by -1. So damage become a healing and vice-versa
 ## specific_component_name only is necessary if the entity have two or more componenets from the same group
-func do_damage(source_entity: Node, target_entity: Node, oposite_behaviour: bool = false, specific_component_name: String = "") -> void:
+func do_damage(source_entity: Node, target_entity: Node, oposite_behaviour: bool = false, source_component_name: String = "", target_component_name: String = "") -> void:
 	
 	# The source_entity must have at least one component from DamageComponentGroup, and target_entity at least one HealthComponent
-	var target_component = get_commponent_from_entity(target_entity, "HealthComponentGroup", specific_component_name)
+	var target_component = get_component_from_entity(target_entity, "HealthComponentGroup", target_component_name)
 	if target_component == null:
 		return
 		
-	var source_component = get_commponent_from_entity(source_entity, "DamageComponentGroup", specific_component_name)
+	var source_component = get_component_from_entity(source_entity, "DamageComponentGroup", source_component_name)
 	if source_component == null:
 		return
 	

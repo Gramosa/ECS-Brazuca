@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="ECS Test Project"
-run/main_scene="res://itens/test_ecs.tscn"
+run/main_scene="res://itens/test_material/scenes_examples/example1/test_ecs.tscn"
 config/features=PackedStringArray("4.0", "Mobile")
 config/icon="res://icon.svg"
 

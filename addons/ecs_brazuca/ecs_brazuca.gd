@@ -20,7 +20,7 @@ func _exit_tree() -> void:
 	pass
 
 ## Add the templates to the script_templates folder
-func copy_templates_paths(core_source_path: String, core_target_path: String, relative_folder_path: String = ""):
+func copy_templates_paths(core_source_path: String, core_target_path: String, relative_folder_path: String = "") -> void:
 	var source_folder_path: String = core_source_path + relative_folder_path
 	var target_folder_path: String = core_target_path + relative_folder_path
 
@@ -49,9 +49,9 @@ func copy_templates_paths(core_source_path: String, core_target_path: String, re
 					
 			file_name = dir.get_next()
 	else:
-		push_error("Was not possible to find the templates directory")
+		push_error("Was not possible to find/open the templates directory")
 
-func create_directory(source_folder_path: String):
+func create_directory(source_folder_path: String) -> void:
 	if DirAccess.dir_exists_absolute(source_folder_path) == false:
 		DirAccess.make_dir_absolute(source_folder_path)
 

@@ -8,18 +8,6 @@ extends Node
 ## Do NOT override the functions _init, _ready and _exit_tree (Utilize super() in the beggining of these functions)
 class_name BaseComponent
 
-"""
-Talvez nunca sera usado, com a implementação atual dos sistemas, os componentes não precisam se conectar de forma alguma com outros componentes
-Mas vou manter esse enum aqui, por enquanto
-"""
-## Passed as arguent when a signal is emitted and must be directed to a component
-enum ComponentTargetType {
-	CONTAINERT, 
-	IDENTITY, 
-	HEALTH,
-	DAMAGE,
-	}
-
 ## General warnings used for the components to notify when something are not configured, the node will work 
 const COMPONENT_WARNINGS = {
 	"COMPONENT WARNING 1": "The Signal {0} from component {1} is not connected, the component still works, but for this specific signal there isn't any purpose for the parent node",
@@ -36,12 +24,12 @@ const COMPONENT_WARNINGS = {
 ## The IdentityComponent node, its preferable to be a simbling. The IdentityComponent load the data from the JSONS files at runtime execution
 @export var identity_component: IdentityComponent
 
-## Used by get_closest_parent_from_type to search for the parent
+## Used by get_closest_parent_from_type to search for the parent, check get_closest_parent_from_type()
 var _target_entity_type: String = "Node2D"
 
-## Used for the components as a workaround to get_class() problem (if necessary)
-func get_class_name():
-	return "BaseComponent"
+## Actually the entity who belongs this component, does not modify direct, it are always updated automatically in the _enter_tree()
+## check get_closest_parent_from_type()
+var _entity: Node = null
 
 func _init() -> void:
 	add_to_group("Components", true)
@@ -62,12 +50,15 @@ func get_closest_parent_from_type(node: Node, parent_type: String) -> Node:
 			return parent
 		else:
 			# In other worlds, grandparent, great-grandfather
+			# get_parent() will return the parent if have, but if there is not will return null.
 			parent = parent.get_parent()
 	
 	push_warning("The node \"{0}\" does not have a parent who have \"{1}\" as ancestor, the own node \"{0}\" will be returned instead".format([node, parent_type]))
 	return node
 
 func _enter_tree() -> void:
+	_entity = get_closest_parent_from_type(self, _target_entity_type)
+	
 	# Once the component is inside the tree it will tell all Systems calling _on_component_added for all Systems pass self as argument
 	if get_tree().has_group("Systems") == true:
 		get_tree().call_group("Systems", "_on_component_added", self)

@@ -59,9 +59,8 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 var health: int
 
 func _init():
-	super()
-	
 	_target_entity_type = "Node2D"
+	super()
 	add_to_group("HealthComponentGroup", true)
 
 func get_health() -> int:
@@ -126,10 +125,9 @@ func update_health(damage : int) -> void:
 func show_health_points(health_behaviour: CHANGE_BEHAVIOUR) -> void:
 	
 	var health_points: Node2D = health_points_path.instantiate()
-	var closest_node2d_parent = get_closest_parent_from_type(self, _target_entity_type)
 	# If its equal than self, means there is not a parent who inherits from Node2D
 	# So the transform is not visible, meaning there is not a position to display the health points
-	if closest_node2d_parent != self:
+	if _entity != self:
 		var health_points_color: Color
 		# The color of health_points will be defined according the health_behaviour
 		match health_behaviour:
@@ -143,6 +141,6 @@ func show_health_points(health_behaviour: CHANGE_BEHAVIOUR) -> void:
 				health_points_color = color_damaged
 		
 		health_points.setup(health, health_points_color)
-		closest_node2d_parent.add_child(health_points)
+		_entity.add_child(health_points)
 	else:
 		push_warning("The component {0} doesn't have an ancetor who inherits from Node2D, so the health points cannot be visible. Consider setting visible_health_points to false".format(self.get_name()))

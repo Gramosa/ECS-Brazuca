@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://37j0lsn6ifhh"]
+
+[ext_resource type="Script" path="res://itens/test_material/scenes_examples/example1/enemy_test.gd" id="1_8fo7y"]
+[ext_resource type="Texture2D" uid="uid://bmnnlgmdc5elw" path="res://icon.svg" id="1_kjfx8"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="2_ml0vo"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="3_ox0fj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y5tux"]
+size = Vector2(57, 56.5)
+
+[node name="EnemyTest" type="Area2D" groups=["Enemy"]]
+script = ExtResource("1_8fo7y")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_ml0vo")
+max_health = 50000
+initial_health = 50000
+resistance_ratio = null
+visible_health_points = null
+color_nothing_changed = null
+color_damaged = null
+color_healed = null
+ignore_signal_warnings = true
+take_from_id_component = null
+
+[node name="DamageComponent" type="Node" parent="."]
+script = ExtResource("3_ox0fj")
+damage = 5000
+
+[node name="Enemy" type="Sprite2D" parent="."]
+modulate = Color(0.776471, 0, 0.309804, 1)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_kjfx8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_y5tux")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="health_depleted" from="HealthComponent" to="." method="_on_health_component_health_depleted"]

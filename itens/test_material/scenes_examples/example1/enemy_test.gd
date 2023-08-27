@@ -3,7 +3,7 @@ extends Area2D
 @onready var damage_system: Node = get_node("/root/TestECS/Systems/DamageSystem")
 
 # Variables for the movement, not related to the ECS
-var velocity: int = randi_range(50, 200)
+var velocity: int = randi_range(50, 400)
 var direction: Vector2 = Vector2(1, 0)
 var start_position: Vector2
 var max_distance: float = 400.0
@@ -14,8 +14,11 @@ func _on_area_entered(area: Area2D) -> void:
 	if entity.get_name() == "Enemies":
 		entity = area
 	
-	"""Mudar no futuro a maneira de chamar a função do_damage, provavelmente usando sinais"""
-	damage_system.do_damage(self, entity)
+	"""Mudar no futuro a maneira de chamar a função do_damage, provavelmente usando sinais."""
+	if area.is_in_group("Enemy"):
+		damage_system.do_damage(self, area)
+	else:
+		damage_system.do_damage(self, entity, false, false, "", entity.actual_health_component)
 
 func _ready():
 	start_position = self.global_position

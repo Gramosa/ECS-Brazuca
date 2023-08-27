@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://bu10wr38b52sm"]
+
+[ext_resource type="PackedScene" uid="uid://bfnymvr6pgtg" path="res://itens/test_material/scenes_examples/example2/player_example.tscn" id="1_tch80"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_xcal8"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="2_ccci2"]
+[ext_resource type="PackedScene" uid="uid://1h77tcny04l5" path="res://itens/test_material/scenes_examples/example2/enemy_example.tscn" id="2_vqnx3"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="4_1n7rl"]
+
+[node name="Example2" type="Node2D"]
+
+[node name="DamageSystem" type="Node" parent="."]
+script = ExtResource("1_xcal8")
+
+[node name="PlayerExample" parent="." instance=ExtResource("1_tch80")]
+position = Vector2(42, 163)
+
+[node name="Health" type="Node" parent="PlayerExample"]
+script = ExtResource("2_ccci2")
+max_health = 100
+initial_health = 100
+ignore_signal_warnings = true
+
+[node name="EnemyExample" parent="." instance=ExtResource("2_vqnx3")]
+position = Vector2(405, 161)
+
+[node name="Damage" type="Node" parent="EnemyExample"]
+script = ExtResource("4_1n7rl")
+damage = 50
+ignore_signal_warnings = true
+
+[node name="Health" type="Node" parent="EnemyExample"]
+script = ExtResource("2_ccci2")
+max_health = 500
+initial_health = 500
+
+[connection signal="health_depleted" from="EnemyExample/Health" to="EnemyExample" method="_on_health_health_depleted"]

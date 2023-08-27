@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://bfnymvr6pgtg"]
+
+[ext_resource type="Script" path="res://itens/test_material/scenes_examples/example2/player_example.gd" id="1_foeb0"]
+[ext_resource type="Texture2D" uid="uid://bmnnlgmdc5elw" path="res://icon.svg" id="2_gbhgs"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5r1iu"]
+size = Vector2(111, 108)
+
+[node name="PlayerExample" type="Area2D"]
+scale = Vector2(0.5, 0.5)
+script = ExtResource("1_foeb0")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_gbhgs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_5r1iu")

@@ -1,0 +1,76 @@
+[gd_scene load_steps=10 format=3 uid="uid://cy7dps8t55ew4"]
+
+[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_tylnr"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/element_system/effect_system.gd" id="2_hj1p1"]
+[ext_resource type="PackedScene" path="res://itens/test_material/scenes_examples/example1/entity.tscn" id="3_3bb4k"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="4_aj5qr"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="5_a4o2q"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/effect_component/effect_component.gd" id="6_ctk7b"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/resources/effect_data.gd" id="7_h5wxr"]
+[ext_resource type="Script" path="res://itens/test_material/scenes_examples/example1/entities.gd" id="8_3chi4"]
+
+[sub_resource type="Resource" id="Resource_nm8cl"]
+script = ExtResource("7_h5wxr")
+effect_name = "Endurance"
+effect_type = 2
+effect_behaviour = 3
+effect_duraction = 2.0
+effect_value = 2.0
+
+[node name="TestECS" type="Node"]
+
+[node name="Systems" type="Node" parent="."]
+
+[node name="DamageSystem" type="Node" parent="Systems"]
+unique_name_in_owner = true
+script = ExtResource("1_tylnr")
+
+[node name="EffectSystem" type="Node" parent="Systems"]
+unique_name_in_owner = true
+script = ExtResource("2_hj1p1")
+
+[node name="PlayerTest" parent="." instance=ExtResource("3_3bb4k")]
+z_index = 1
+position = Vector2(293, 166)
+
+[node name="PrimaryHealth" type="Node" parent="PlayerTest"]
+script = ExtResource("4_aj5qr")
+max_health = 500000
+initial_health = 500000
+resistance_ratio = null
+visible_health_points = null
+color_nothing_changed = null
+color_damaged = null
+color_healed = null
+ignore_signal_warnings = true
+take_from_id_component = null
+
+[node name="Shield" type="Node" parent="PlayerTest"]
+script = ExtResource("4_aj5qr")
+max_health = 100000
+initial_health = 100000
+resistance_ratio = 10.0
+visible_health_points = null
+color_nothing_changed = Color(0.635294, 0.34902, 0.294118, 1)
+color_damaged = Color(0.819608, 0.596078, 0.737255, 1)
+color_healed = Color(0.4, 0.54902, 1, 1)
+ignore_signal_warnings = true
+take_from_id_component = null
+
+[node name="DamageComponent" type="Node" parent="PlayerTest"]
+script = ExtResource("5_a4o2q")
+damage = 50000
+
+[node name="EffectComponent" type="Node" parent="PlayerTest"]
+script = ExtResource("6_ctk7b")
+availibe_effects = Array[ExtResource("7_h5wxr")]([SubResource("Resource_nm8cl")])
+
+[node name="Entities" type="Node2D" parent="."]
+script = ExtResource("8_3chi4")
+
+[connection signal="health_changed" from="PlayerTest/PrimaryHealth" to="PlayerTest" method="_on_health_component_health_changed"]
+[connection signal="health_depleted" from="PlayerTest/PrimaryHealth" to="PlayerTest" method="_on_primary_health_depleted"]
+[connection signal="health_recovered" from="PlayerTest/PrimaryHealth" to="PlayerTest" method="_on_primary_health_recovered"]
+[connection signal="health_changed" from="PlayerTest/Shield" to="PlayerTest" method="_on_health_component_health_changed"]
+[connection signal="health_depleted" from="PlayerTest/Shield" to="PlayerTest" method="_on_shield_health_depleted"]
+[connection signal="health_recovered" from="PlayerTest/Shield" to="PlayerTest" method="_on_shield_health_recovered"]

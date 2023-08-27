@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://1gf7tfbqeqqy"]
+
+[ext_resource type="Script" path="res://itens/test_material/scenes_examples/example2/projectile.gd" id="1_6hdhu"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="2_4b66j"]
+[ext_resource type="Texture2D" uid="uid://bmnnlgmdc5elw" path="res://icon.svg" id="2_oifqn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i88fw"]
+size = Vector2(106, 105)
+
+[node name="Projectile" type="Area2D" groups=["independent_projectile"]]
+scale = Vector2(0.25, 0.25)
+script = ExtResource("1_6hdhu")
+
+[node name="Damage" type="Node" parent="."]
+script = ExtResource("2_4b66j")
+damage = 100
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0, 0, 0, 1)
+texture = ExtResource("2_oifqn")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_i88fw")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

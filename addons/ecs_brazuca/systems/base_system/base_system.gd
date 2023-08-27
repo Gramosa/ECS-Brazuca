@@ -4,8 +4,7 @@ extends Node
 ## It provides functionality for organizing entities and their components based on component groups.
 ## The derived systems should extend this class and:
 ## - Define their own required component groups in the `_components_requireds` variable on _init.
-## - Do NOT override the _init() function (Utilize super() AFTER define the required components)
-## - MUST override the function get_class_name to return the apropriate name of the class (Not much important, only for raise warnings purposes)
+## - Do NOT override the _init() function (Utilize super() after define the required components)
 class_name BaseSystem
 
 ## An array of component groups names that entities must belong to in order to be added to the `entities` dictionary.
@@ -13,7 +12,7 @@ class_name BaseSystem
 var _components_requireds: Array[String] = []
 
 ## Important to know: an entity cannnot have two components with same name AND type, but it can have the same type with different names, or same name with different types.
-## An entity can have any number of components, even components with same and same group.
+## An entity can have any number of components, even components with same name and same group.
 ##
 ## The `entities` variable is a dictionary of lists with a specific nested structure:
 ##   - The first level is a dictionary where each key represents the entity id, by the built-in function get_instance_id().
@@ -43,10 +42,10 @@ var _components_requireds: Array[String] = []
 ##   Player(id): [
 ##     CharacterBody2D(node),
 ##     {
-##       HealthComponentGroup: [
+##       "HealthComponentGroup": [
 ##         Health(node)
 ##       ],
-##       DamageComponentGroup: [
+##       "DamageComponentGroup": [
 ##         Damage(node),
 ##         ElementalDamage(node)
 ##       ]
@@ -55,19 +54,16 @@ var _components_requireds: Array[String] = []
 ##   Enemy(id): [
 ##     Area2D(node),
 ##     {
-##       HealthComponentGroup: [
+##       "HealthComponentGroup": [
 ##         EnemyHealth(node)
 ##       ],
-##       MovementComponentGroup: [
+##       "MovementComponentGroup": [
 ##         EnemyMovement(node)
 ##       ]
 ##     }
 ##   ]
 ## }
 var entities: Dictionary = {}
-
-func get_class_name():
-	return "BaseSystem"
 
 func _init() -> void:
 	add_to_group("Systems", true)
@@ -105,30 +101,9 @@ func load_entities_from_group(component_group: String):
 	var members_from_group: Array = get_tree().get_nodes_in_group(component_group)
 	for component in members_from_group:
 		# Find the closest parent node of the component that is of type Node2D
-		var entity = get_closest_parent_from_type(component, "Node2D")
+		var entity = component._entity
 		
 		_update_entities_with_entity(entity, component, component_group)
-
-## Check recursivaly if the parent of node inherits from a specifief type, if not check the grandparent, great_grandfather...
-## If no one inherits from the specified parent_type the own node will be returned (argument "node")
-## Important, does not need to inherity direct, but an ancestor must be from this parent_type. 
-## For example, if parent_type arg are "Node2D", even a parent that are a CharacterBody2D will be considered a valid parent
-## The parent_type arg must be a built-in class, described by ClassDB (for now)
-func get_closest_parent_from_type(node: Node, parent_type: String) -> Node:
-	assert(ClassDB.class_exists(parent_type), "The class name \"{0}\" passed as argument \"parent_type\" does not exist. For now only built-in classes works".format([parent_type]))
-	var parent = node.get_parent()
-	
-	while parent != null:
-		#if parent.get_class() == parent_type:
-		if ClassDB.is_parent_class(parent.get_class(), parent_type):
-			return parent
-		else:
-			# In other worlds, grandparent, great-grandfather
-			# Will return the parent if have, but if there is not will return null.
-			parent = parent.get_parent()
-	
-	push_warning("The node \"{0}\" does not have a parent who have \"{1}\" type as ancestor, the own node \"{0}\" will be returned instead".format([node, parent_type]))
-	return node
 
 # Called by each components inside "Components" group to each system in "Systems" group when the component is _ready(), anywhere in scene tree
 # Used to add components at runtime
@@ -136,12 +111,12 @@ func _on_component_added(component: Node) -> void:
 	for component_group in _components_requireds:
 		if component.is_in_group(component_group):
 			# Find the closest parent node of the component that is of type Node2D
-			var entity = get_closest_parent_from_type(component, "Node2D")
+			var entity: Node = component._entity
 			
 			_update_entities_with_entity(entity, component, component_group)
 
 func _on_component_removed(component: Node) -> void:
-	var entity: Node = get_closest_parent_from_type(component, "Node2D")
+	var entity: Node = component._entity
 	var entity_id: int = entity.get_instance_id()
 	
 	# if the entity are not in entities, the system will ignore the component remotion
@@ -196,7 +171,13 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 		return false
 	
 	if specific_component_name != "":
-		if specific_component_name not in entities[entity_id][1][component_group]:
+		# take all names of the components from component_group that belongs to entity
+		var components_names = []
+		for component in entities[entity_id][1][component_group]:
+			components_names.append(component.get_name())
+		
+		# check if the given specific_component_name is part of the group
+		if specific_component_name not in components_names:
 			push_warning("The component {0}, that belongs to the entity {1} is not part of the group {2}".format([specific_component_name, entity.get_name(), component_group]))
 			return false
 	
@@ -206,7 +187,8 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 		return false
 	
 	if number_of_components_from_same_group >= 2 and specific_component_name == "":
-		push_warning("The entity '{0}' has multiple components from the group '{1}'. The system '{2}' cannot determine which component to use for the operation. Please specify a specific component name. The operation will be ignored.".format([entity.get_name(), component_group, self.get_class_name()]))
+		print(specific_component_name)
+		push_warning("The entity '{0}' has multiple components from the group '{1}'. The system '{2}' cannot determine which component to use for the operation. Please specify a specific component name. The operation will be ignored.".format([entity.get_name(), component_group, self.get_name()]))
 		return false
 	
 	return true
@@ -216,7 +198,7 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 func get_component_from_entity(entity: Node, component_group: String, specific_component_name: String = "") -> BaseComponent:
 	var entity_id: int = entity.get_instance_id()
 	if can_system_operate_entity(entity, component_group, specific_component_name) == true:
-		## If passe the tests with specific_component_name equal to "", means there is only one component from the component_group
+		## If passes the tests with specific_component_name equal to "", means there is only one component from the component_group
 		if specific_component_name == "":
 			return entities[entity_id][1][component_group][0]
 		

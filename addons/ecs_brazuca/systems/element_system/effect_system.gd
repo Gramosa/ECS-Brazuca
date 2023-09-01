@@ -91,7 +91,6 @@ class EffectChain:
 		add_link(EffectChain.new(operation).add_multiple_links(links))
 		return self
 	
-	
 	func _get_link_value(link: Variant): #Return float or null
 		if typeof(link) in [TYPE_INT, TYPE_FLOAT]:
 			_effects_names.append(null)

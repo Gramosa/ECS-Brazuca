@@ -126,7 +126,7 @@ func _on_component_removed(component: Node) -> void:
 	# Check for each group required by the system if the component is part of these group
 	for component_group in _components_requireds:
 		if component.is_in_group(component_group):
-			# It is not compatible the component be part of a component_group and this component group be inside _components_requireds
+			# It is not compatible, if the component be part of a component_group and this component group be inside _components_requireds
 			# but the component is not inside entities variable
 			if component_group not in entities[entity_id][1]:
 				push_error(

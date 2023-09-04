@@ -18,8 +18,11 @@ func _input(event):
 		damage_system.do_damage(self, self, true, true, "", actual_health_component)
 	
 	elif event.is_action_pressed("testar"):
+		var start = Time.get_ticks_msec()
 		effect_system.test()
 		effect_system.test2()
+		var end = Time.get_ticks_msec() - start
+		print("tempo passado= ", end)
 	
 # Called by both HealthComponent
 # Maybe pass the component name with signal???

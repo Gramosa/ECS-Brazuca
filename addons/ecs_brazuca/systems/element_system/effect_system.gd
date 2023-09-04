@@ -4,9 +4,22 @@ extends BaseSystem
 
 class_name EffectSystem
 
-## The effects already applied, if the duraction are higher than 0 a cooldown are created, in the end, the effect are removed
-## If the duraction are less than 0, the system will take this like a permanent effect, its the structure
-var map_effects: Dictionary = {}
+## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependend, since its does not register the entity
+## When a component are affected by an effect for the first time, its registered here, and the property in question have an EffectChain assigned to it.
+## If the duraction are higher than 0 a cooldown are created, in the end, the effect are removed
+## If the duraction are equal to -1, the system will take this like a permanent effect, its the structure of _map_effects
+## 
+## Lets consider an entity who have two components, a HealthComponent and a DamageComponent. And an effect was registered to affect the resistance_ratio and damage_ratio of them
+## Here's the resulting `_map_effects` variable:
+## {
+##     HealthComponent(id) {
+##         "resistance_ratio": EffectChainA (instance)
+##     },
+##     DamageComponent(id) {
+##         "damage_ratio": EffectChainB (instance)
+## }
+##
+var _map_effects: Dictionary = {}
 
 ## Do NOT override _init, utilize super() and begginin and set the target components groups with _component_requireds
 ## REMEMBER: The system will load every entity who have at least one component who belongs from at least one of the designed groups
@@ -15,20 +28,20 @@ func _init() -> void:
 	
 	_components_requireds = ["EffectComponentGroup", "HealthComponentGroup", "DamageComponentGroup"]
 
-## The effect chain makes possible calculate the effects in any order (for now using sum and multiplication)
-## Each chain have an operation, and this operation tell how the links must be merged. You can thin chains as () in a mathemmatic expression
-## For example, if there is the effects A, B, C and D. And the calculation expected are result = (A + B) * (C + D)
-## It could be:
-## sub_chain1 = EffectChain.new("sum")
-## sub_chain1.add_link(A)
-## sub_chain1.add_link(B)
+## The effect chain makes possible calculate the effects in any order (for now using sum, multiplication and division)
+## Each chain have an operation, and this operation tell how the links must be merged. You can think chains as () in a mathemmatic expression
+## The links in the chain can be: int, float, EffectData or another EffectChain
+## For example, if there is the effects A, B, C and D. And the calculation expected are: result = (A + B) * (C + D)
+## It could be, Ex1:
+## sub_chain1 = EffectChain.new("sum").add_multiple_links([A, B])
+## sub_chain2 = EffectChain.new("sum").add_multiple_links([C, D])
 ##
-## sub_chain2 = EffectChain.new("sum")
-## sub_chain2.add_multiple_links([C, D])
-##
-## main_chain = EffectChain.new("multiplication")
-## main_chain.add_multiple_links([sub_chain1, sub_chain2])
+## main_chain = EffectChain.new("multiplication").add_multiple_links([sub_chain1, sub_chain2])
 ## result = main_chain.get_calculated_chain()
+## 
+## Ex2:
+## main_chain = EffectChain.new("multiplication").add_chain("sum", [A, B]).add_chain("sum", [C, D])
+## And many others ways...
 class EffectChain:
 	const POSSIBLE_OPERATIONS: Array[String] = ["sum", "multiplication", "division"]
 	
@@ -38,6 +51,7 @@ class EffectChain:
 	
 	## Actualy the function used to perform the operation
 	var _operator: Callable
+	
 	## An array who contains links, so links together makes a chain
 	var _chain: Array
 	var _effects_names: Array
@@ -68,16 +82,24 @@ class EffectChain:
 		_operation = operation
 	
 	# Add a link in the _chain, it MUST be an int, float, EffectData or another EffectChain
-	func add_link(link: Variant) -> EffectChain:
+	# If the index be -1 its means the last position in the chain
+	func add_link(link: Variant, index: int = -1) -> EffectChain:
 		assert(link is EffectData or link is EffectChain or typeof(link) in [TYPE_INT, TYPE_FLOAT], \
 		"The link {0} must be a numeric value, EffectData or another chain".format([link]))
+		if index < -1:
+			push_error("The index MUST be higher or equal to -1, given {0} instead".format([index]))
 		
-		_chain.append(link)
+		if index == -1:
+			_chain.append(link)
+		elif len(_chain) >= index:
+			_chain.insert(index, link)
+		else:
+			push_error("Invalid Index: The index value perpass the lenghth of the chain")
 		is_chain_updated = false
 		return self
 	
 	## add multiple links. Check add_link()
-	func add_multiple_links(links: Array) -> EffectChain:
+	func add_multiple_links(links: Array, index: int = -1) -> EffectChain:
 		if links.is_empty():
 			push_error("'links' argument must have at least one link, but it's empty")
 			
@@ -87,8 +109,8 @@ class EffectChain:
 		return self
 	
 	# An shorthand to add a chain
-	func add_chain(operation: String, links: Array) -> EffectChain:
-		add_link(EffectChain.new(operation).add_multiple_links(links))
+	func add_chain(operation: String, links: Array, index: int = -1) -> EffectChain:
+		add_link(EffectChain.new(operation).add_multiple_links(links), index)
 		return self
 	
 	func _get_link_value(link: Variant): #Return float or null
@@ -144,7 +166,7 @@ func test() -> void:
 	var c: int = 4
 	var d: int = 5
 	var e: int = 6
-
+	
 	# Create sub-chain 1: (a + b) * c
 	var sub_chain_1: EffectChain = EffectChain.new("multiplication")
 	sub_chain_1.add_chain("sum", [a, b])
@@ -154,18 +176,39 @@ func test() -> void:
 	var main_chain: EffectChain = EffectChain.new("division")
 	main_chain.add_link(sub_chain_1)
 	main_chain.add_chain("sum", [d, -e])
-
+	
 	# Print results
-	print("Calculated Chain Value:", main_chain.get_calculated_chain())
-	print("Effects Names:", main_chain.get_effects_names())
+	#print("Calculated Chain Value:", main_chain.get_calculated_chain())
+	#print("Effects Names:", main_chain.get_effects_names())
 
 func test2() -> void:
+	"""
 	var data: EffectData = EffectData.new()
 	data.effect_name = "FOGO"
-	var chain = EffectChain.new("sum")
-	chain.add_link(data)
-	chain.get_calculated_chain()
+	data.effect_value = 1"""
+	
+	var chain = EffectChain.new("multiplication")
+	chain.add_link(1)
+	for i in range(1, 100):
+		chain.add_link(i)
+	print(chain.get_calculated_chain())
 
+
+	
+
+func _update_map_effect_with_component(component: BaseComponent, effect: EffectData, effect_chain: EffectChain):
+	var property_target: String = effect.get_effect_target()["property"]
+	if property_target not in component:
+		push_error("The effect '{0}' can't be applied to the property '{1}' of component '{2}', since this compononet does not have the property".format([effect.effect_name, property_target, component.get_name()]))
+		return
+	
+	var component_id: int = component.get_instance_id()
+	if component_id not in _map_effects:
+		_map_effects[component_id] = {}
+	
+	if property_target not in _map_effects[component_id]:
+		_map_effects[component_id][property_target] = effect_chain
+	
 ## Usually to apply an effect, the event must be trigged from this function. This function put the effect in a queue list to be aplied in the next call of _process().
 ## source_entity must have an EffectComponent and target_entity must have at least one component required by the system.
 ## effect_name is the actual name of the effect, the value of EffectData.effect_name.

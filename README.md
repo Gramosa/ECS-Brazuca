@@ -1,2 +1,4 @@
 # ECS-Brazuca
-An example of an ECS Architectuty applied to GODOT 4
+
+## _A plugin for Godot 4.0 based on the ECS and ED arquitecture_
+

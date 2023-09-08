@@ -11,35 +11,35 @@ class_name EffectData
 enum EFFECT_TYPES {NOTHING=0, CONTINUOUS_DAMAGE=1, RESISTANCE_DEBUFF=2, VELOCITY_DEBUFF=3, DAMAGE_DEBUFF=4}
 
 """NAO IMPLEMENTADO"""
-## The behaviour expected when an effect are applied, how it must modify the target propertie.
-## REPLACE: The base value of the propertie from the component are replaced, the same as propertie = new_value.
-## MULTIPLY: Multiply the desired propertie by the value, the same as propertie *= new_value.
+## The behaviour expected when an effect are applied, how it must modify the target property.
+## REPLACE: The base value of the property from the component are replaced, the same as property = new_value.
+## MULTIPLY: Multiply the desired property by the value, the same as property *= new_value.
 enum EFFECT_BEHAVIOURS {NOT_APPLY=0, REPLACE=1, SUM=2, MULTIPLY=3}
 
 const EFFECT_TARGETS: Dictionary = {
 	EFFECT_TYPES.NOTHING: {
 		"component_target_group": null,
-		"propertie": null,
+		"property": null,
 		"allowed_behaviours": [EFFECT_BEHAVIOURS.NOT_APPLY]
 	},
 	EFFECT_TYPES.CONTINUOUS_DAMAGE: {
 		"component_target_group": "HealthComponentGroup",
-		"propertie": "health",
+		"property": "health",
 		"allowed_behaviours": [EFFECT_BEHAVIOURS.NOT_APPLY]
 	},
 	EFFECT_TYPES.RESISTANCE_DEBUFF: {
 		"component_target_group": "HealthComponentGroup",
-		"propertie": "resistance_ratio",
+		"property": "resistance_ratio",
 		"allowed_behaviours": [EFFECT_BEHAVIOURS.REPLACE, EFFECT_BEHAVIOURS.MULTIPLY]
 	},
 	EFFECT_TYPES.VELOCITY_DEBUFF: {
 		"component_target_group": null,
-		"propertie": null,
+		"property": null,
 		"allowed_behaviours": [EFFECT_BEHAVIOURS.REPLACE, EFFECT_BEHAVIOURS.MULTIPLY]
 	},
 	EFFECT_TYPES.DAMAGE_DEBUFF: {
 		"component_target_group": "DamageComponentGroup",
-		"propertie": "damage_ratio",
+		"property": "damage_ratio",
 		"allowed_behaviours": [EFFECT_BEHAVIOURS.REPLACE, EFFECT_BEHAVIOURS.MULTIPLY]
 	}
 }
@@ -61,7 +61,7 @@ const EFFECT_TARGETS: Dictionary = {
 		# Take first allowed behaviour and give to effect_behaviour
 		effect_behaviour = get_effect_target()["allowed_behaviours"][0]
 	
-## Chose one of the behaviours for the effects, this means, how the system must modify the propertie
+## Chose one of the behaviours for the effects, this means, how the system must modify the property
 @export var effect_behaviour: EFFECT_BEHAVIOURS = EFFECT_BEHAVIOURS.REPLACE:
 	set(new_effect_behaviour):
 		# Does not change nothing if the values are the same
@@ -88,4 +88,10 @@ const EFFECT_TARGETS: Dictionary = {
 
 ## Take the respective dictionary target, based on the effect_type
 func get_effect_target() -> Dictionary:
-	return EFFECT_TARGETS[effect_type]
+	var effect_target: Dictionary = EFFECT_TARGETS[effect_type]
+	# Verify if the keys have any null value, this means the effect is not implemented yet, so will be ignored and a warning raised
+	if null not in effect_target.values():
+		return effect_target
+	else:
+		push_warning("The effect {0} was not implemented yet, since there is at least one null value on the respective EFFECT_TARGETS. Operation ignored".format([effect_name]))
+		return {}

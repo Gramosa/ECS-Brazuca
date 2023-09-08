@@ -21,7 +21,11 @@ func _init() -> void:
 	add_to_group("EffectComponentGroup", true)
 
 func get_availibe_effects() -> Array[EffectData]:
+	if availibe_effects.is_empty():
+		push_warning("The EffectComponent {0} from entity {1} are empty, its impossible to apply any effect".format([self.get_name(), _entity.get_name()]))
+	
 	return availibe_effects
+	
 
 func get_availibe_effects_names() -> Array[String]:
 	var effects_names: Array[String] = []
@@ -32,8 +36,13 @@ func get_availibe_effects_names() -> Array[String]:
 	
 
 func get_effect_by_name(required_name: String) -> EffectData:
-	for effect in availibe_effects:
+	for effect in get_availibe_effects():
 		if effect.effect_name == required_name:
-			return effect
+			if effect.effect_type != EffectData.EFFECT_TYPES.NOTHING:
+				return effect
+			else:
+				push_warning("Trying to utilize the effect {0}, but it have effect_type equal to NOTHING, well nothing will happen".format([effect.effect_name]))
+				return null
 		
+	push_error("The effect with effect_name {0} does not exist on the component {1} from entity {2}, chose a different effect_name".format([required_name, self.get_name(), _entity.get_name()]))
 	return null

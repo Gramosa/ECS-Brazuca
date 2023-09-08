@@ -167,12 +167,12 @@ func test() -> void:
 	var d: int = 5
 	var e: int = 6
 	
-	# Create sub-chain 1: (a + b) * c
+	# (a + b) * c
 	var sub_chain_1: EffectChain = EffectChain.new("multiplication")
 	sub_chain_1.add_chain("sum", [a, b])
 	sub_chain_1.add_link(c)
 
-	# Create main chain: ((a + b) * c) / (d - e)
+	# ((a + b) * c) / (d - e)
 	var main_chain: EffectChain = EffectChain.new("division")
 	main_chain.add_link(sub_chain_1)
 	main_chain.add_chain("sum", [d, -e])
@@ -192,10 +192,9 @@ func test2() -> void:
 	for i in range(1, 100):
 		chain.add_link(i)
 	print(chain.get_calculated_chain())
-
-
 	
 
+# This function is responsible for populating the _map_effects
 func _update_map_effect_with_component(component: BaseComponent, effect: EffectData, effect_chain: EffectChain):
 	var property_target: String = effect.get_effect_target()["property"]
 	if property_target not in component:
@@ -207,43 +206,33 @@ func _update_map_effect_with_component(component: BaseComponent, effect: EffectD
 		_map_effects[component_id] = {}
 	
 	if property_target not in _map_effects[component_id]:
+		"""Por enquanto o valor base da propriedade é adicionado como primeiro elemento da corrente"""
+		var property_value: float = component.get(property_target)
+		effect_chain.add_link(property_value, 0)
 		_map_effects[component_id][property_target] = effect_chain
 	
+
 ## Usually to apply an effect, the event must be trigged from this function. This function put the effect in a queue list to be aplied in the next call of _process().
 ## source_entity must have an EffectComponent and target_entity must have at least one component required by the system.
 ## effect_name is the actual name of the effect, the value of EffectData.effect_name.
 ## source_component_name and target_component_name are used if the source_entity or target_entity have more than one component from the same type.
 func apply_effect(source_entity: Node, target_entity: Node, effect_name: String, source_component_name: String = "", target_component_name: String = "") -> void:
 	# The source_entity must have at least one EffectComponent
-	var source_effect_component = get_component_from_entity(source_entity, "EffectComponentGroup",source_component_name)
+	var source_effect_component: EffectComponent = get_component_from_entity(source_entity, "EffectComponentGroup",source_component_name)
 	if source_effect_component == null:
 		return
 	
 	# Check if the EffectComponent does not have at least one EffectData, an empty EffectComponent cant apply any effect
-	if source_effect_component.get_availibe_effects().is_empty() == true:
-		push_warning("The EffectComponent {0} from entity {1} are empty, its impossible to apply any effect".format([source_effect_component.get_name(), source_entity.get_name()]))
-		return
-	
-	# Check if the effect really exists
-	if effect_name not in source_effect_component.get_availibe_effects_names():
-		push_error("The effect with effect_name {0} does not exist on the component {1} from entity {2}, chose a different effect_name".format([effect_name, source_effect_component.get_name(), source_entity.get_name()]))
+	if source_effect_component.get_availibe_effects() == []:
 		return
 		
-	var specific_effect: EffectData = source_effect_component.get_effect_by_name(effect_name)
-	# Take the properties from the EffectData
-	var effect_type: EffectData.EFFECT_TYPES = specific_effect.effect_type
-	
-	# Check if the effect type is NOTHING
-	if effect_type == EffectData.EFFECT_TYPES.NOTHING:
-		push_warning("Trying to utilize the effect {0}, but it have effect_type equal to NOTHING, well nothing will happen".format(effect_name))
+	var effect: EffectData = source_effect_component.get_effect_by_name(effect_name)
+	if effect == null:
 		return
 		
 	# Take the respective dictionary from the EFFECT_TARGETS dictionary
-	var effect_target: Dictionary = specific_effect.get_effect_target()
-	
-	# Verify if the keys have any null value, this means the effect is not implemented yet, so will be ignored and a warning raised
-	if null in effect_target.values():
-		push_warning("The effect {0} was not implemented yet, since there is at least one null value on the respective EFFECT_TARGETS. Operation ignored".format([effect_name]))
+	var effect_target: Dictionary = effect.get_effect_target()
+	if effect_target == {}:
 		return
 	
 	# Take the component who will be affected, based on the effect who will be aplied
@@ -251,36 +240,9 @@ func apply_effect(source_entity: Node, target_entity: Node, effect_name: String,
 	if target_component == null:
 		return
 	
+	_update_map_effect_with_component(target_component, effect, EffectChain.new("sum"))
 
-func apply_random_effect(source_entity: Node, target_entity: Node, source_component_name: String = "", target_component_name: String = ""):
-	# The source_entity must have at least one EffectComponent
-	var source_effect_component = get_component_from_entity(source_entity, "EffectComponentGroup",source_component_name)
-	if source_effect_component == null:
-		return
-	
-	# Check if the EffectComponent does not have at least one EffectData, an empty EffectComponent cant apply any effect
-	if source_effect_component.get_availibe_effects().is_empty() == true:
-		push_warning("The EffectComponent {0} from entity {1} are empty, its impossible to apply any effect".format([source_effect_component.get_name(), source_entity.get_name()]))
-		return
-
-	var random_effect: EffectData = source_effect_component.get_availibe_effects().pick_random()
-	#_load_effects_to_apply(random_effect, target_entity, target_component_name)
-	pass
-
-func apply_all_effects(source_entity: Node, target_entity: Node, source_component_name: String = "", target_component_name: String = ""):
-	# The source_entity must have at least one EffectComponent
-	var source_effect_component = get_component_from_entity(source_entity, "EffectComponentGroup",source_component_name)
-	if source_effect_component == null:
-		return
-	
-	# Check if the EffectComponent does not have at least one EffectData, an empty EffectComponent cant apply any effect
-	if source_effect_component.get_availibe_effects().is_empty() == true:
-		push_warning("The EffectComponent {0} from entity {1} are empty, its impossible to apply any effect".format([source_effect_component.get_name(), source_entity.get_name()]))
-		return
-
-	for effect in source_effect_component.get_availibe_effects():
-		#_load_effects_to_apply(effect, target_entity, target_component_name)
-		pass
+"""Implementar efeito aleatorio e/ou aplicar todos os efeitos"""
 
 ## This function actually is responsible to apply the effect, its means change directly the affected component.
 ## For internal purposes only, externally the effects is better applied with queue_effect()
@@ -290,8 +252,8 @@ func _apply_effect(queued_effect: Array) -> void:
 	var target_component: BaseComponent = queued_effect[1]
 	
 	"""Talvez mudar no futo para um array, e permitir mais de uma modificação por efeito, desde que o alvo seja o mesmo componente"""
-	# Take the name of the propertie to be modified, and the value it must have
-	var target_propertie: String = effect.get_effect_target()["propertie"]
+	# Take the name of the property to be modified, and the value it must have
+	var target_propertie: String = effect.get_effect_target()["property"]
 	# Since for now only one property are modified by the effect, it will take the unique value from effect_value
 	var propertie_value = effect.effect_value
 	

@@ -29,7 +29,7 @@ func _input(event):
 func _on_health_component_health_changed(new_health: int, behaviour: HealthComponent.CHANGE_BEHAVIOUR):
 	if behaviour == HealthComponent.CHANGE_BEHAVIOUR.DECREASED:
 		"""Lembrando que o sistema de efeito ainda nao foi totalmente implementado"""
-		#effect_system.queue_effect(self, self, "Endurance", "", "PrimaryHealth")
+		effect_system.apply_effect(self, self, "Endurance", "", "PrimaryHealth")
 		print("levou dano")
 	
 	elif behaviour == HealthComponent.CHANGE_BEHAVIOUR.INCREASED:

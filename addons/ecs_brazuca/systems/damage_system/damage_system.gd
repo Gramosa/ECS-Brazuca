@@ -28,17 +28,15 @@ func do_damage(source_entity: Node, target_entity: Node, oposite_behaviour: bool
 	else:
 		target_component.update_health(-real_damage)
 	
-	
 func do_continuous_damage(source_entity: Node, target_entity: Node) -> void:
 	pass
 
-func _get_real_damage(damage_component: DamageComponent, health_component: HealthComponent, true_damage: bool):
+func _get_real_damage(damage_component: DamageComponent, health_component: HealthComponent, true_damage: bool) -> int:
 	var base_damage: int = damage_component.get_damage()
-	var real_damage: int
+	var calc_chain: CalcChain = CalcChain.new("multiplication").add_numeric_link(base_damage)
 	# The true damage ignore the resistance and damage_ratio
-	if true_damage == true:
-		real_damage = base_damage
-	else:
-		real_damage = int(base_damage * (damage_component.get_damage_ratio() / health_component.get_resistance_ratio()))
+	if true_damage != true:
+		# base_damage * (damage_ratio / resistance_ratio)
+		calc_chain.add_numeric_chain("division", [damage_component.get_damage_ratio(), health_component.get_resistance_ratio()])
 	
-	return real_damage
+	return int(calc_chain.get_calculated_chain())

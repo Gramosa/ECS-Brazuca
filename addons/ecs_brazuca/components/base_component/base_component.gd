@@ -14,8 +14,6 @@ const COMPONENT_WARNINGS = {
 	"COMPONENT WARNING 2": "There is not any System in the scene_tree(), the component will not work properly, since there is not a system to manage it",
 }
 
-## 
-
 ## If true warnings will not be emitted if a signal are not connected
 @export var ignore_signal_warnings: bool = false
 

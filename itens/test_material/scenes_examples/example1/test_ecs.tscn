@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cy7dps8t55ew4"]
+[gd_scene load_steps=10 format=3 uid="uid://dcovxsjfqca2t"]
 
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_tylnr"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/element_system/effect_system.gd" id="2_hj1p1"]

@@ -29,7 +29,6 @@ func _process(delta: float) -> void:
 func _destroy_spell():
 	self.queue_free()
 
-
 func _on_area_entered(area: Area2D) -> void:
 	if area != _caster:
 		damage_system.do_damage(self, area)

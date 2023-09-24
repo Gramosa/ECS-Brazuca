@@ -19,8 +19,10 @@ func _input(event):
 	
 	elif event.is_action_pressed("testar"):
 		var start = Time.get_ticks_msec()
-		effect_system.test()
-		effect_system.test2()
+		#effect_system.test()
+		#effect_system.test2()
+		#effect_system.test3()
+		effect_system.test4()
 		var end = Time.get_ticks_msec() - start
 		print("tempo passado= ", end)
 	

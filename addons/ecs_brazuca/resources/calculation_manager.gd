@@ -11,14 +11,9 @@ class CalcBase:
 		_tag = tag
 
 class CalcLink extends CalcBase:
-	var _value: Variant:
-		set(new_value):
-			if typeof(new_value) not in [TYPE_INT, TYPE_FLOAT]:
-				push_error("The value {0} must be a numeric value (int or float)".format([new_value]))
-				return
-			_value = new_value
+	var _value: float
 	
-	func _init(value: Variant, tag: String = ""):
+	func _init(value: float, tag: String = ""):
 		_value = value
 		_tag = tag
 
@@ -49,6 +44,9 @@ class CalcChain extends CalcBase:
 	## An array who contains links, so links together makes a chain
 	var _chain: Array
 	
+	## Actually all chains who may hold this chain as child
+	var _parents: Array[CalcChain]
+	
 	# The value calculated of the chain and subchains
 	var _chain_value: float
 	
@@ -77,20 +75,54 @@ class CalcChain extends CalcBase:
 		_operation = operation
 		_tag = tag
 	
+	static func can_register_parent_chain(child_chain: CalcChain, parent_chain: CalcChain) -> bool:
+		if child_chain == parent_chain:
+				push_error("The chain {0} cannot be a parent of himself".format([child_chain._tag]))
+				return false
+				
+		if child_chain in parent_chain._parents:
+			push_error("The chain {0} cannot be a child of the chain {1}, since it already are one of its parent".format([child_chain._tag, parent_chain._tag]))
+			return false
+		else:
+			for grandparent in parent_chain._parents:
+				if not can_register_parent_chain(child_chain, grandparent):
+					return false
+		return true
+	
+	## Actually with this implemnentation, its possible to child chains set parents to false.
+	## update_chain is responsible for setting children recursivaly to true
+	func _set_is_update_recursivaly(status: bool) -> void:
+		if status == true:
+			push_error("You cannot infer parent chain are updated, because there is no track for simbling chains")
+			return
+		is_chain_updated = status
+		if _parents.is_empty() == false:
+			for parent_chain in _parents:
+				parent_chain._set_is_update_recursivaly(status)
+	
 	# Add a link in the _chain, it MUST be a CalcLink or another CalcChain
 	# If the index be -1 its means the last position in the chain
-	func add_link(link: Variant, index: int = -1) -> CalcChain:
+	func add_link(link: CalcBase, index: int = -1) -> CalcChain:
 		assert(link is CalcChain or link is CalcLink, \
-		"The link {0} must be a CalcLink or another chain".format([link]))
-		if index < -1:
-			push_error("The index MUST be higher or equal to -1, given {0} instead".format([index]))
-		elif index == -1:
+		"The link {0} must be a CalcLink or another chain".format([link._tag]))
+		
+		if link is CalcChain:
+			if can_register_parent_chain(link, self) == false:
+				return null
+		
+		if index < -1 or index > len(_chain):
+			push_error("Invalid Index: Index {0} from chain {1} is out of the range".format([index, self._tag]))
+			return null
+		
+		if index == -1:
 			_chain.append(link)
-		elif len(_chain) >= index:
-			_chain.insert(index, link)
 		else:
-			push_error("Invalid Index: The index value perpass the lenghth of the chain")
-		is_chain_updated = false
+			_chain.insert(index, link)
+		
+		_set_is_update_recursivaly(false) # must be set before updating _parents
+		if link is CalcChain:
+			link._parents.append(self) # Add himself as a parent of the link
+		
 		return self
 	
 	## Add a link using the value directly, its make possible to add a link without instancing it before
@@ -127,46 +159,26 @@ class CalcChain extends CalcBase:
 		return self
 	
 	## An shorthand to add a chain directly
-	func add_chain(operation: String, links: Array, index: int = -1) -> CalcChain:
-		add_link(CalcChain.new(operation).add_multiple_links(links), index)
+	func add_chain(operation: String, links: Array, chain_tag: String = "", index: int = -1) -> CalcChain:
+		add_link(CalcChain.new(operation, chain_tag).add_multiple_links(links), index)
 		return self
 	
 	## An shorthand to add a chain directly, and without instancing its links child
-	func add_numeric_chain(operation: String, values: Array[Variant], tags: Array[String] = [], index: int = -1) -> CalcChain:
-		add_link(CalcChain.new(operation).add_multiple_numeric_links(values, tags), index)
+	func add_numeric_chain(operation: String, values: Array[Variant], chain_tag: String = "", tags: Array[String] = [], index: int = -1) -> CalcChain:
+		add_link(CalcChain.new(operation, chain_tag).add_multiple_numeric_links(values, tags), index)
 		return self
 	
+	"""Corrigir depois"""
 	func remove_link_by_index(index: int) -> void:
-		if index < -1:
-			push_error("The index MUST be higher or equal to -1, given {0} instead".format([index]))
-			
+		if index < -1 or index > len(_chain):
+			push_error("Invalid Index: Index {0} from chain {1} is out of the range".format([index, self._tag]))
+			return
 		elif index == -1:
 			_chain.pop_back()
-		elif len(_chain) >= index:
-			_chain.remove_at(index)
 		else:
-			push_error("Invalid Index: The index value perpass the lenghth of the chain")
-		is_chain_updated = false
-	
-	## First it will check in for every link in the chain, if recursivaly are true, it will then check for the children if not found in the main chain
-	func remove_link_by_tag(tag: String, recursivaly: bool = false) -> bool:
-		var found_link = false
-		for link in _chain:
-			if link._tag == tag:
-				_chain.erase(link)
-				found_link = true
-				break
+			_chain.remove_at(index)
 		
-		if recursivaly:
-			for link in _chain:
-				if link is CalcChain:
-					if link.remove_link_by_tag(tag, recursivaly):
-						found_link = true
-						break
-		if found_link:
-			is_chain_updated = false
-			
-		return found_link
+		_set_is_update_recursivaly(false)
 	
 	func _get_link_value(link: Variant): #Return float or null
 		if link is CalcLink:
@@ -202,6 +214,13 @@ class CalcChain extends CalcBase:
 			
 		return _chain_value
 	
+	func get_link_by_tag(tag: String) -> CalcBase:
+		for link in _chain:
+			if link._tag == tag:
+				return link
+			
+		return null
+	
 	## This method will take a link recursivaly using the DFS alghoritm (Depth-first Search).
 	## This means, it will search on subchains first (if one are encountered).
 	func get_link_by_tag_dfs(tag: String) -> CalcBase:
@@ -212,7 +231,7 @@ class CalcChain extends CalcBase:
 				var found_link = link.get_link_by_tag_dfs(tag)
 				if found_link != null:
 					return found_link
-		
+			
 		return null
 	
 	## This method take a link usign the BFS alghortim (Breadth-first Search)
@@ -228,3 +247,23 @@ class CalcChain extends CalcBase:
 				queue += current_link._chain.duplicate()
 		
 		return null
+	
+	## First it will check in for every link in the chain, if recursivaly are true, it will then check for the children if not found in the main chain
+	func remove_link_by_tag(tag: String) -> CalcChain:
+		var link_to_remove: CalcBase
+		
+		link_to_remove = get_link_by_tag(tag)
+		
+		if link_to_remove != null:
+			_chain.erase(link_to_remove)
+			if link_to_remove is CalcChain:
+				link_to_remove._parents.erase(self)
+			
+			_set_is_update_recursivaly(false)
+		else:
+			push_warning("link with tag {0} not found on the chain {1}, try 'remove_link-by_tag_recursivaly'".format([tag, self._tag]))
+		
+		return self
+	
+	func remove_link_by_tag_recursivaly(tag: String):
+		pass

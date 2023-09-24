@@ -50,6 +50,7 @@ func test() -> void:
 	#print("Calculated Chain Value:", main_chain.get_calculated_chain())
 
 func test2() -> void:
+	
 	# ((d + ld + 2l + 2lc - 2) / 2)
 	var d: int = 5
 	var l: int = 15
@@ -59,12 +60,73 @@ func test2() -> void:
 	sub_chain1\
 		.add_numeric_link(d)\
 		.add_numeric_chain("multiplication", [l, d])\
-		.add_numeric_chain("multiplication", [2, l])\
+		.add_numeric_chain("multiplication", [2, l], "2l")\
 		.add_numeric_chain("multiplication", [2, l, c])\
 		.add_numeric_link(-2)
-	main_chain.add_link(sub_chain1)
-	main_chain.add_numeric_link(2)
+	main_chain.add_link(sub_chain1)\
+		.add_numeric_link(2)
 	
+	print(main_chain.get_calculated_chain())
+	
+	sub_chain1.remove_link_by_tag("2l")
+	
+	print(main_chain.get_calculated_chain())
+
+func test3() -> void:
+	var a = 2
+	var b = 3
+	var c = 5
+	var d = 7
+	var e = 11
+	
+	var main_chain: CalculationManager.CalcChain = CalcChain.new("sum", "main")
+	main_chain\
+		.add_numeric_chain("multiplication", [a, b])\
+		.add_numeric_chain("multiplication", [c, d], "chain2")
+	print(main_chain.get_calculated_chain()) #41
+	
+	var chain2: CalculationManager.CalcChain = main_chain.get_link_by_tag_bfs("chain2")
+	chain2.add_numeric_link(e)
+	print(main_chain.get_calculated_chain()) #391
+	
+	main_chain.remove_link_by_tag("chain2")
+	
+	print(main_chain.get_calculated_chain()) #6
+	
+	chain2.add_link(main_chain)
+	
+	print(chain2.get_link_by_tag_dfs("main"))
+	
+func test4() -> void:
+	var A: float = 5
+	var B: float = 10
+	var C: float = 15
+	var D: float = 20
+	var E: float = 2
+	var F: float = 3
+	var G: float = 4
+
+	var main_chain: CalculationManager.CalcChain = CalcChain.new("division", "main")
+	var sub_chain1: CalculationManager.CalcChain = CalcChain.new("multiplication", "sub1")
+	var sub_chain2: CalculationManager.CalcChain = CalcChain.new("multiplication", "sub2")
+	
+	#((A+B)*(C-D-E))
+	sub_chain1\
+		.add_numeric_chain("sum", [A, B], "A+B")\
+		.add_numeric_chain("sum", [C, -D, -E])
+	#(E*(F+G))
+	sub_chain2\
+		.add_numeric_link(E)\
+		.add_numeric_chain("sum", [F, G])
+	#((A+B)*(C-D-E))/(E*(F+G))
+	main_chain\
+		.add_link(sub_chain1)\
+		.add_link(sub_chain2)
+	
+	print(main_chain.get_calculated_chain()) # Expected output: -7.5
+	
+	#Tests of remotion
+	main_chain.get_link_by_tag_dfs("sub1").remove_link_by_tag("A+B")
 	print(main_chain.get_calculated_chain())
 
 # This function is responsible for registering the properties and components on _map_effects.
@@ -101,10 +163,10 @@ func _unregister_property_on_map_effect(component: BaseComponent, property: Stri
 	if _map_effects[component_id].is_empty():
 		_map_effects.erase(component_id)
 	
-func _modify_property():
+func _modify_property(component: BaseComponent, property: String):
 	pass
 
-## Usually to apply an effect, the event must be trigged from this function. This function put the effect in a queue list to be aplied in the next call of _process().
+## Usually to apply an effect, the event must be trigged from this function.
 ## source_entity must have an EffectComponent and target_entity must have at least one component required by the system.
 ## effect_name is the actual name of the effect, the value of EffectData.effect_name.
 ## source_component_name and target_component_name are used if the source_entity or target_entity have more than one component from the same type.

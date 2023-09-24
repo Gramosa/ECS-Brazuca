@@ -23,10 +23,6 @@ window/size/window_width_override=1152
 window/size/window_height_override=648
 window/stretch/mode="canvas_items"
 
-[editor]
-
-run/main_run_args="--rendering-driver opengl3"
-
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/ecs_brazuca/plugin.cfg")

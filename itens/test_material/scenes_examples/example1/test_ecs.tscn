@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://dcovxsjfqca2t"]
 
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_tylnr"]
-[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/element_system/effect_system.gd" id="2_hj1p1"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/effect_system/effect_system.gd" id="2_sr5fl"]
 [ext_resource type="PackedScene" uid="uid://c66bh86whixep" path="res://itens/test_material/scenes_examples/example1/entity.tscn" id="3_3bb4k"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="4_aj5qr"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="5_a4o2q"]
@@ -27,7 +27,7 @@ script = ExtResource("1_tylnr")
 
 [node name="EffectSystem" type="Node" parent="Systems"]
 unique_name_in_owner = true
-script = ExtResource("2_hj1p1")
+script = ExtResource("2_sr5fl")
 
 [node name="PlayerTest" parent="." instance=ExtResource("3_3bb4k")]
 z_index = 1

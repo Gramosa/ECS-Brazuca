@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dcovxsjfqca2t"]
+[gd_scene load_steps=11 format=3 uid="uid://dcovxsjfqca2t"]
 
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_tylnr"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/effect_system/effect_system.gd" id="2_sr5fl"]
@@ -16,6 +16,14 @@ effect_type = 2
 effect_behaviour = 3
 effect_duraction = 2.0
 effect_value = 2.0
+
+[sub_resource type="Resource" id="Resource_ixm5w"]
+script = ExtResource("7_h5wxr")
+effect_name = "aa"
+effect_type = 1
+effect_behaviour = 0
+effect_duraction = 0.0
+effect_value = 0.0
 
 [node name="TestECS" type="Node"]
 
@@ -63,7 +71,7 @@ damage = 50000
 
 [node name="EffectComponent" type="Node" parent="PlayerTest"]
 script = ExtResource("6_ctk7b")
-availibe_effects = Array[ExtResource("7_h5wxr")]([SubResource("Resource_nm8cl")])
+availibe_effects = Array[ExtResource("7_h5wxr")]([SubResource("Resource_nm8cl"), SubResource("Resource_ixm5w")])
 
 [node name="Entities" type="Node2D" parent="."]
 script = ExtResource("8_3chi4")

@@ -1,5 +1,7 @@
 """NÃO FUNCIONAL, NÃO IMPLEMENTADO"""
 """Falta possibilitar a remoção do efeito aplicado"""
+"""Para fazer isso funcionar o registro do CalcChain atrelado a uma propriedade especifica deveria ser registrado antes da aplicação do efeito."""
+"""Talvez criar algumas formulas genericas normalmente usadas, ainda permitindo que estruturas customizadas sejam criadas"""
 extends BaseSystem
 
 class_name EffectSystem
@@ -123,12 +125,22 @@ func test4() -> void:
 		.add_link(sub_chain1)\
 		.add_link(sub_chain2)
 	
-	print(main_chain.get_calculated_chain()) # Expected output: -7.5
+	print(main_chain.get_calculated_chain()) # out -7.5
 	
 	#Tests of remotion
+	#((C-D-E))/(E*(F+G))
 	main_chain.get_link_by_tag_dfs("sub1").remove_link_by_tag("A+B")
-	print(main_chain.get_calculated_chain())
+	print(main_chain.get_calculated_chain()) # out -0.5
+	
+	##((C-D-E)*(C+D))/(E*(F+G))
+	sub_chain1.add_numeric_chain("sum", [C, D], "sub1_1") # out -17.5
+	print(main_chain.get_calculated_chain()) 
 
+	#Tests for parenting chains
+	var subchain1_1: CalculationManager.CalcChain = main_chain.get_link_by_tag_bfs("sub1_1")
+	subchain1_1.add_link(main_chain) # Must throw an error due circular parenting main > sub1>  sub1_1 !> main
+	
+	
 # This function is responsible for registering the properties and components on _map_effects.
 func _register_property_on_map_effect(component: BaseComponent, property: String, calc_chain: CalculationManager.CalcChain) -> void:
 	if property not in component:

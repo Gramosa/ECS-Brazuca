@@ -17,7 +17,7 @@ class CalcLink extends CalcBase:
 		_value = value
 		_tag = tag
 
-## Its an utility class, it was designed to perform mathematic operations in a flexible way (for now using sum, multiplication and division)
+## Its an utility class, that was designed to perform mathematic operations in a flexible way (for now using sum, multiplication and division)
 ## Each chain have an operation, and was designed to have only one operation, and this operation tell how the links must be merged. You can think chains as () in a mathemmatic expression
 ## The links in the chain can be: int, float or another CalcChain
 ## For example, if there is the values A, B, C and D. And the Calc expected are: result = (A + B) * (C + D)
@@ -31,6 +31,7 @@ class CalcLink extends CalcBase:
 ## main_chain = CalcChain.new("multiplication").add_numeric_chain("sum", [A, B]).add_numeric_chain("sum", [C, D])
 ## result = main_chain.get_calculated_chain()
 ## And many others ways...
+## In fact it are a
 class CalcChain extends CalcBase:
 	const POSSIBLE_OPERATIONS: Array[String] = ["sum", "multiplication", "division"]
 	
@@ -81,7 +82,7 @@ class CalcChain extends CalcBase:
 				return false
 				
 		if child_chain in parent_chain._parents:
-			push_error("The chain {0} cannot be a child of the chain {1}, since it already are one of its parent".format([child_chain._tag, parent_chain._tag]))
+			push_error("Circular parenting: The chain {0} cannot be added as a child, because it are already parent of the chain {1}.".format([child_chain._tag, parent_chain._tag]))
 			return false
 		else:
 			for grandparent in parent_chain._parents:
@@ -265,5 +266,13 @@ class CalcChain extends CalcBase:
 		
 		return self
 	
-	func remove_link_by_tag_recursivaly(tag: String):
-		pass
+	func remove_link_from_subchain(subchain_tag: String, tag: String) -> CalcChain:
+		var subchain: CalcBase = get_link_by_tag_bfs(subchain_tag)
+		if subchain is CalcChain:
+			subchain.remove_link_by_tag(tag)
+		elif subchain is CalcLink:
+			push_error("The link {0} exists on {1} chain, but it is a CalcLink. Must be a CalcChain".format([subchain_tag, self._tag]))
+		elif subchain == null:
+			push_error("The subchain {0} does not exists on chain {1}".format([subchain_tag, self._tag]))
+		
+		return self

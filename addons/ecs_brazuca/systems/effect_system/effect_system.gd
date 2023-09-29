@@ -29,7 +29,6 @@ func _init() -> void:
 	super()
 	
 	_components_requireds = ["EffectComponentGroup", "HealthComponentGroup", "DamageComponentGroup"]
-	
 
 func test() -> void:
 	var a: int = 2
@@ -129,17 +128,32 @@ func test4() -> void:
 	
 	#Tests of remotion
 	#((C-D-E))/(E*(F+G))
+	print("Remotion:")
 	main_chain.get_link_by_tag_dfs("sub1").remove_link_by_tag("A+B")
 	print(main_chain.get_calculated_chain()) # out -0.5
 	
 	##((C-D-E)*(C+D))/(E*(F+G))
 	sub_chain1.add_numeric_chain("sum", [C, D], "sub1_1") # out -17.5
 	print(main_chain.get_calculated_chain()) 
-
+	
 	#Tests for parenting chains
+	print("Circular Parenting:")
 	var subchain1_1: CalculationManager.CalcChain = main_chain.get_link_by_tag_bfs("sub1_1")
 	subchain1_1.add_link(main_chain) # Must throw an error due circular parenting main > sub1>  sub1_1 !> main
 	
+	#Tests duplicating
+	print("Duplicating:")
+	var new_chain: CalculationManager.CalcChain = main_chain.duplicate()
+	if new_chain == main_chain:
+		print("igual")
+	print("Chains after duplication:")
+	print(new_chain.get_calculated_chain()) #-17.5
+	print(main_chain.get_calculated_chain()) #-17.5
+	print("Chains after remotion:")
+	##((C-D-E))/(E*(F+G))
+	new_chain.remove_link_from_subchain("sub1", "sub1_1")
+	print(new_chain.get_calculated_chain()) # -0.5
+	print(main_chain.get_calculated_chain()) # -17.5
 	
 # This function is responsible for registering the properties and components on _map_effects.
 func _register_property_on_map_effect(component: BaseComponent, property: String, calc_chain: CalculationManager.CalcChain) -> void:

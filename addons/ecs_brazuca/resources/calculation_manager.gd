@@ -4,6 +4,8 @@ extends Resource
 ## It was designed to be utilized by the systems
 class_name CalculationManager
 
+var _expressions: Dictionary = {}
+
 ## This class provide a bunch of classes used to perform calculations, 
 class CalcBase:
 	var _tag: String
@@ -16,7 +18,11 @@ class CalcLink extends CalcBase:
 	func _init(value: float, tag: String = ""):
 		_value = value
 		_tag = tag
-
+	
+	func duplicate() -> CalcLink:
+		var new_link = CalcLink.new(_value, _tag)
+		return new_link
+	
 ## Its an utility class, that was designed to perform mathematic operations in a flexible way (for now using sum, multiplication and division)
 ## Each chain have an operation, and was designed to have only one operation, and this operation tell how the links must be merged. You can think chains as () in a mathemmatic expression
 ## The links in the chain can be: int, float or another CalcChain
@@ -90,6 +96,20 @@ class CalcChain extends CalcBase:
 					return false
 		return true
 	
+	func duplicate(as_simbling : bool = false) -> CalcChain:
+		var new_chain = CalcChain.new(_operation, _tag)
+		if as_simbling:
+			for parent in _parents:
+				parent.add_link(new_chain)
+				
+		for link in _chain:
+			new_chain.add_link(link.duplicate())
+			
+		new_chain._chain_value = _chain_value
+		new_chain.is_chain_updated = is_chain_updated
+		
+		return new_chain
+	
 	## Actually with this implemnentation, its possible to child chains set parents to false.
 	## update_chain is responsible for setting children recursivaly to true
 	func _set_is_update_recursivaly(status: bool) -> void:
@@ -133,7 +153,7 @@ class CalcChain extends CalcBase:
 		return self
 	
 	## add multiple links. Check add_link()
-	func add_multiple_links(links: Array) -> CalcChain:
+	func add_multiple_links(links: Array[CalcBase]) -> CalcChain:
 		if links.is_empty():
 			push_error("'links' argument must have at least one link, but it's empty")
 			
@@ -160,7 +180,7 @@ class CalcChain extends CalcBase:
 		return self
 	
 	## An shorthand to add a chain directly
-	func add_chain(operation: String, links: Array, chain_tag: String = "", index: int = -1) -> CalcChain:
+	func add_chain(operation: String, links: Array[CalcBase], chain_tag: String = "", index: int = -1) -> CalcChain:
 		add_link(CalcChain.new(operation, chain_tag).add_multiple_links(links), index)
 		return self
 	
@@ -194,7 +214,7 @@ class CalcChain extends CalcBase:
 	
 	func update_chain() -> void:
 		if _chain.is_empty():
-			push_warning("The chain are empty, it must have at least one item")
+			push_warning("The chain {0} are empty, it must have at least one item".format([_tag]))
 			return
 		
 		_chain_value = _get_link_value(_chain[0])
@@ -262,7 +282,7 @@ class CalcChain extends CalcBase:
 			
 			_set_is_update_recursivaly(false)
 		else:
-			push_warning("link with tag {0} not found on the chain {1}, try 'remove_link-by_tag_recursivaly'".format([tag, self._tag]))
+			push_warning("link with tag {0} not found on the chain {1}, try 'remove_link_from_subchain'".format([tag, self._tag]))
 		
 		return self
 	
@@ -276,3 +296,12 @@ class CalcChain extends CalcBase:
 			push_error("The subchain {0} does not exists on chain {1}".format([subchain_tag, self._tag]))
 		
 		return self
+
+func _init() -> void:
+	# main: (base * ([buff*]/[debuff*]))
+	var buff: CalcChain = CalcChain.new("multiplication", "buff")
+	var debuff: CalcChain = CalcChain.new("multiplication", "debuff")
+	_expressions["stat mod ratio"] = CalcChain.new("multiplication", "main")\
+		.add_chain("division", [buff, debuff], "debuff")
+	
+	

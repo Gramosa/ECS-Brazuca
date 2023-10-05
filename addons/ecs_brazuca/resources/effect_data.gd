@@ -4,47 +4,52 @@ extends Resource
 
 class_name EffectData
 
-## You can create others behavious changing the values, for example:
-## pseudo CONTINUOUS_HEALING would be damage < 0
-## pseudo VELOCITY_BUFF would be velocity_ratio > 1
-## pseudo DAMAGE_BUFF would be damage_change_ratio > 1
-enum EFFECT_TYPES {NOTHING=0, CONTINUOUS_DAMAGE=1, RESISTANCE_DEBUFF=2, VELOCITY_DEBUFF=3, DAMAGE_DEBUFF=4}
+"""Ideias de effeitos: CONTINOUS_DAMAGE, VELOCITY"""
+enum EFFECT_TYPES {NOTHING=0, CONTINUOUS_DAMAGE=1, RESISTANCE=2, VELOCITY=3, STRENGHT=4}
 
 """NAO IMPLEMENTADO"""
-## The behaviour expected when an effect are applied, how it must modify the target property.
-## REPLACE: The base value of the property from the component are replaced, the same as property = new_value.
-## MULTIPLY: Multiply the desired property by the value, the same as property *= new_value.
-enum EFFECT_BEHAVIOURS {NOT_APPLY=0, REPLACE=1, SUM=2, MULTIPLY=3}
+## Its tell how the system must deal when a duplicated effect are applied. 
+enum DUPLICATED_BEHAVIOURS {NOTHING=0, NOT_APPLY=1, IGNORE=2, REPLACE=3, SUM=4, MULTIPLICATION=5}
 
 const EFFECT_TARGETS: Dictionary = {
 	EFFECT_TYPES.NOTHING: {
 		"component_target_group": null,
 		"property": null,
-		"allowed_behaviours": [EFFECT_BEHAVIOURS.NOT_APPLY]
+		"allowed_behaviours": [DUPLICATED_BEHAVIOURS.NOTHING]
 	},
 	EFFECT_TYPES.CONTINUOUS_DAMAGE: {
 		"component_target_group": "HealthComponentGroup",
 		"property": "health",
-		"allowed_behaviours": [EFFECT_BEHAVIOURS.NOT_APPLY]
+		"allowed_behaviours": [DUPLICATED_BEHAVIOURS.NOTHING]
 	},
-	EFFECT_TYPES.RESISTANCE_DEBUFF: {
+	EFFECT_TYPES.RESISTANCE: {
 		"component_target_group": "HealthComponentGroup",
 		"property": "resistance_ratio",
-		"allowed_behaviours": [EFFECT_BEHAVIOURS.REPLACE, EFFECT_BEHAVIOURS.MULTIPLY]
+		"allowed_behaviours": [
+			DUPLICATED_BEHAVIOURS.IGNORE, 
+			DUPLICATED_BEHAVIOURS.REPLACE,
+			DUPLICATED_BEHAVIOURS.MULTIPLICATION,
+			DUPLICATED_BEHAVIOURS.SUM
+		]
 	},
-	EFFECT_TYPES.VELOCITY_DEBUFF: {
+	EFFECT_TYPES.VELOCITY: {
 		"component_target_group": null,
 		"property": null,
-		"allowed_behaviours": [EFFECT_BEHAVIOURS.REPLACE, EFFECT_BEHAVIOURS.MULTIPLY]
+		"allowed_behaviours": [DUPLICATED_BEHAVIOURS.NOTHING]
 	},
-	EFFECT_TYPES.DAMAGE_DEBUFF: {
+	EFFECT_TYPES.STRENGHT: {
 		"component_target_group": "DamageComponentGroup",
 		"property": "damage_ratio",
-		"allowed_behaviours": [EFFECT_BEHAVIOURS.REPLACE, EFFECT_BEHAVIOURS.MULTIPLY]
+		"allowed_behaviours": [
+			DUPLICATED_BEHAVIOURS.IGNORE, 
+			DUPLICATED_BEHAVIOURS.REPLACE,
+			DUPLICATED_BEHAVIOURS.MULTIPLICATION,
+			DUPLICATED_BEHAVIOURS.SUM
+		]
 	}
 }
 
-## The specific name of the effect, just for visual behaviour and/or organization, like Burn, Freeze and etc... 
+## The specific name of the effect, for tracking and organization, like Burn, Freeze and etc...
 @export_placeholder("Effect Name") var effect_name: String
 
 # Mental note: EFFECT_TYPES and effect_type are different, effect_type are just one of the possibles EFFECT_TYPES (Isso é obvio mas continuo me confundindo)
@@ -57,23 +62,23 @@ const EFFECT_TARGETS: Dictionary = {
 		
 		effect_type = new_effect_type
 		
-		## Modify effect_behaviour
-		# Take first allowed behaviour and give to effect_behaviour
-		effect_behaviour = get_effect_target()["allowed_behaviours"][0]
+		## Modify duplicated_behaviour
+		# Take first allowed behaviour and give to duplicated_behaviour
+		duplicated_behaviour = get_effect_target()["allowed_behaviours"][0]
 	
 ## Chose one of the behaviours for the effects, this means, how the system must modify the property
-@export var effect_behaviour: EFFECT_BEHAVIOURS = EFFECT_BEHAVIOURS.REPLACE:
-	set(new_effect_behaviour):
+@export var duplicated_behaviour: DUPLICATED_BEHAVIOURS = DUPLICATED_BEHAVIOURS.NOT_APPLY:
+	set(new_duplicated_behaviour):
 		# Does not change nothing if the values are the same
-		if effect_behaviour == new_effect_behaviour:
+		if duplicated_behaviour == new_duplicated_behaviour:
 			return
 		
 		# Verify if the behaviour are allowed by the effect_type
-		if new_effect_behaviour not in get_effect_target()["allowed_behaviours"]:
-			push_warning("Trying to give a not allowed behaviour ({0}) to an effect from type ({1}), check 'allowed_behaviours' list in EFFECT_TARGETS'".format([EFFECT_BEHAVIOURS.keys()[new_effect_behaviour], EFFECT_TYPES.keys()[effect_type]]))
+		if new_duplicated_behaviour not in get_effect_target()["allowed_behaviours"]:
+			push_warning("Trying to give a not allowed behaviour ({0}) to an effect from type ({1}), check 'allowed_behaviours' list in EFFECT_TARGETS'".format([DUPLICATED_BEHAVIOURS.keys()[new_duplicated_behaviour], EFFECT_TYPES.keys()[effect_type]]))
 			return
 		
-		effect_behaviour = new_effect_behaviour
+		duplicated_behaviour = new_duplicated_behaviour
 	
 ## The duration of the effect, if 0 the effect will not be applied, if less than 0 the effect will be considered permanent.
 ## A permanent effect are NOT removed automatically by the system with a cooldown

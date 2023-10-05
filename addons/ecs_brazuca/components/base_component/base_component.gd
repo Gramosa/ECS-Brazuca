@@ -8,6 +8,12 @@ extends Node
 ## Do NOT override the functions _init, _ready and _exit_tree (Utilize super() in the beggining of these functions)
 class_name BaseComponent
 
+## Used by the signals to indicate how some propertie have changed based on the previous value it had
+enum CHANGE_BEHAVIOUR {DECREASED, INCREASED, NOT_CHANGED}
+
+## A general signal designed to be emitted when a proerty are depleted
+#signal property_depleted(property: String)
+
 ## General warnings used for the components to notify when something are not configured, the node will work 
 const COMPONENT_WARNINGS = {
 	"COMPONENT WARNING 1": "The Signal {0} from component {1} is not connected, the component still works, but for this specific signal there isn't any purpose for the parent node",
@@ -17,15 +23,15 @@ const COMPONENT_WARNINGS = {
 ## If true warnings will not be emitted if a signal are not connected
 @export var ignore_signal_warnings: bool = false
 
+## Used by get_closest_parent_from_type to search for the parent, check get_closest_parent_from_type()
+@export var target_entity_type: String = "Node2D"
+
 @export_group("ID Data")
 ## If the data will be loaded from a IdentityComponent, it will ignore completly the exported values, and will load at runtime the values
 @export var take_from_id_component: bool = false
 
 ## The IdentityComponent node, its preferable to be a simbling. The IdentityComponent load the data from the JSONS files at runtime execution
 @export var identity_component: IdentityComponent
-
-## Used by get_closest_parent_from_type to search for the parent, check get_closest_parent_from_type()
-var _target_entity_type: String = "Node2D"
 
 ## Actually the entity who belongs this component, does not modify direct, it are always updated automatically in the _enter_tree()
 ## check get_closest_parent_from_type()
@@ -35,12 +41,13 @@ func _init() -> void:
 	add_to_group("Components", true)
 	
 
+"""Decidir no futuro se eh ou não uma boa ideia mamnter esse metodo estatico"""
 ## Check recursivaly if the parent of node inherits from a specifief type, if not check the grandparent, great_grandfather...
 ## If no one inherits from the specified parent_type the own node will be returned (argument "node")
 ## Important, does not need to inherity direct, but an ancestor must be from this parent_type. 
 ## For example, if parent_type arg are "Node2D", even a parent that are a CharacterBody2D will be considered a valid parent
 ## The parent_type arg must be a built-in class, described by ClassDB (for now)
-func get_closest_parent_from_type(node: Node, parent_type: String) -> Node:
+static func get_closest_parent_from_type(node: Node, parent_type: String) -> Node:
 	assert(ClassDB.class_exists(parent_type), "The class name \"{0}\" passed as argument \"parent_type\" does not exist. For now only built-in classes works".format([parent_type]))
 	var parent = node.get_parent()
 	
@@ -57,7 +64,7 @@ func get_closest_parent_from_type(node: Node, parent_type: String) -> Node:
 	return node
 
 func _enter_tree() -> void:
-	_entity = get_closest_parent_from_type(self, _target_entity_type)
+	_entity = get_closest_parent_from_type(self, target_entity_type)
 	
 	# Once the component is inside the tree it will tell all Systems calling _on_component_added for all Systems pass self as argument
 	if get_tree().has_group("Systems") == true:
@@ -72,3 +79,11 @@ func _exit_tree() -> void:
 	else:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
 	
+func update_property(property: String, value: int) -> Error:
+	if property not in self:
+		push_error("The property {0} does not exist on the component {1} from entity {2}".format([property, get_name(), _entity.get_name()]))
+		return FAILED
+	
+	
+	
+	return OK

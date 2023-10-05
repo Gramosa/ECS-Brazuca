@@ -5,9 +5,6 @@ extends BaseComponent
 ## This component is able to emit a health_points node (who have a short life, just to spam the actual health)
 class_name HealthComponent
 
-## Used by the signals to indicate how some propertie have changed based on the previous value it had
-enum CHANGE_BEHAVIOUR {DECREASED, INCREASED, NOT_CHANGED}
-
 ## Emited when the health reach to 0 for the first time, this means when the entity become dead (in other words).
 signal health_depleted
 ## Emitted when the health increase from 0 to any value, this means when the entity revive (in other words).
@@ -59,7 +56,6 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 var health: int
 
 func _init():
-	_target_entity_type = "Node2D"
 	super()
 	add_to_group("HealthComponentGroup", true)
 
@@ -92,7 +88,7 @@ func verify_connections() -> void:
 	if len(resistance_ratio_changed.get_connections()) == 0:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([resistance_ratio_changed.get_name(), self.get_name()]))
 
-func update_health(damage : int) -> void:
+func update_health(damage: int) -> void:
 	
 	var new_health = clamp(health - damage, 0, max_health)
 	var health_behaviour: CHANGE_BEHAVIOUR

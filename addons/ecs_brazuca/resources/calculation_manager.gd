@@ -4,7 +4,6 @@ extends Resource
 ## It was designed to be utilized by the systems
 class_name CalculationManager
 
-var _expressions: Dictionary = {}
 
 ## This class provide a bunch of classes used to perform calculations, 
 class CalcBase:
@@ -23,10 +22,10 @@ class CalcLink extends CalcBase:
 		var new_link = CalcLink.new(_value, _tag)
 		return new_link
 	
-## Its an utility class, that was designed to perform mathematic operations in a flexible way (for now using sum, multiplication and division)
+## Its an utility class, who designs an DAG (directed acyclic graph), that was designed to perform mathematic operations in a flexible way (for now using sum, multiplication and division)
 ## Each chain have an operation, and was designed to have only one operation, and this operation tell how the links must be merged. You can think chains as () in a mathemmatic expression
-## The links in the chain can be: int, float or another CalcChain
-## For example, if there is the values A, B, C and D. And the Calc expected are: result = (A + B) * (C + D)
+## The links in the chain can be: a Calclink or another CalcChain
+## For example, if there is the CalcLinks A, B, C and D. And the Calc expected are: result = (A + B) * (C + D)
 ## It could be, Ex1:
 ## sub_chain1 = CalcChain.new("sum").add_multiple_numeric_links([A, B])
 ## sub_chain2 = CalcChain.new("sum").add_numeric_link(C).add_numeric_link(D)
@@ -65,7 +64,7 @@ class CalcChain extends CalcBase:
 	var _operation: String:
 		set(new_operation):
 			assert(new_operation in POSSIBLE_OPERATIONS, "The operation {0} must be inside POSSIBLE_OPERATIONS".format([new_operation]))
-			is_chain_updated = false
+			_set_is_update_recursivaly(false)
 			match new_operation:
 				"sum":
 					_operator_function = sum
@@ -297,11 +296,23 @@ class CalcChain extends CalcBase:
 		
 		return self
 
-func _init() -> void:
-	# main: (base * ([buff*]/[debuff*]))
-	var buff: CalcChain = CalcChain.new("multiplication", "buff")
-	var debuff: CalcChain = CalcChain.new("multiplication", "debuff")
-	_expressions["stat mod ratio"] = CalcChain.new("multiplication", "main")\
-		.add_chain("division", [buff, debuff], "debuff")
+"""Nudar os nomes dos metodos no futuro, por algo mais descritivo"""
+class CalcChainFactory:
+	# tags ignored: div
+	# (([buff*]/[debuff*]) * multiplication_main)
+	static func stat_mod_ratio() -> CalcChain:
+		var buff: CalcChain = CalcChain.new("multiplication", "buff")
+		var debuff: CalcChain = CalcChain.new("multiplication", "debuff")
+		
+		var new_chain: CalcChain = CalcChain.new("multiplication", "multiplication_main")\
+		.add_chain("division", [buff, debuff], "div")
+		return new_chain
 	
-	
+	# tags ignored: div
+	# ([sum_main+] * ([buff*]/[debuff*]) * multiplication_main)
+	static func stat_mod_ratio_plus() -> CalcChain:
+		#W Allow sum values direct on the base value before doing the stat_mod_ratio operation
+		var plus_chain: CalcChain = CalcChain.new("sum", "sum_main")
+		var new_chain: CalcChain = stat_mod_ratio().add_link(plus_chain, 0)
+		
+		return new_chain

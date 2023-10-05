@@ -7,7 +7,7 @@ extends BaseSystem
 class_name EffectSystem
 
 ## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependend, since its does not register the entity
-## When a component are affected by an effect for the first time, its registered here, and the property in question have an EffectChain assigned to it.
+## When a component are affected by an effect for the first time, its registered here, and the property in question have an CalcChain assigned to it.
 ## If the duraction are higher than 0 a cooldown are created, in the end, the effect are removed
 ## If the duraction are equal to -1, the system will take this like a permanent effect, its the structure of _map_effects
 ## 
@@ -15,10 +15,10 @@ class_name EffectSystem
 ## Here's the resulting `_map_effects` variable:
 ## {
 ##     HealthComponent(id) {
-##         "resistance_ratio": EffectChainA (instance)
+##         "resistance_ratio": CalcChainA (instance)
 ##     },
 ##     DamageComponent(id) {
-##         "damage_ratio": EffectChainB (instance)
+##         "damage_ratio": CalcChainB (instance)
 ## }
 ##
 var _map_effects: Dictionary = {}
@@ -38,12 +38,12 @@ func test() -> void:
 	var e: int = 6
 	
 	# (a + b) * c
-	var sub_chain_1: CalculationManager.CalcChain = CalcChain.new("multiplication")
+	var sub_chain_1: CalculationManager.CalcChain = CM.CalcChain.new("multiplication")
 	sub_chain_1.add_numeric_chain("sum", [a, b])
 	sub_chain_1.add_numeric_link(c)
 
 	# ((a + b) * c) / (d - e)
-	var main_chain: CalculationManager.CalcChain = CalcChain.new("division")
+	var main_chain: CalculationManager.CalcChain = CM.CalcChain.new("division")
 	main_chain.add_link(sub_chain_1)
 	main_chain.add_numeric_chain("sum", [d, -e])
 	
@@ -54,23 +54,12 @@ func test2() -> void:
 	
 	# ((d + ld + 2l + 2lc - 2) / 2)
 	var d: int = 5
-	var l: int = 15
+	var l: int = 20
 	var c: int = 2
-	var main_chain: CalculationManager.CalcChain = CalcChain.new("division")
-	var sub_chain1: CalculationManager.CalcChain = CalcChain.new("sum")
-	sub_chain1\
-		.add_numeric_link(d)\
-		.add_numeric_chain("multiplication", [l, d])\
-		.add_numeric_chain("multiplication", [2, l], "2l")\
-		.add_numeric_chain("multiplication", [2, l, c])\
-		.add_numeric_link(-2)
-	main_chain.add_link(sub_chain1)\
-		.add_numeric_link(2)
-	
-	print(main_chain.get_calculated_chain())
-	
-	sub_chain1.remove_link_by_tag("2l")
-	
+	var main_chain: CalculationManager.CalcChain = CM.CalcChainFactory.stat_mod_ratio()
+	main_chain.add_numeric_link(l)
+	main_chain.get_link_by_tag_bfs("buff").add_numeric_link(d)
+	main_chain.get_link_by_tag_bfs("debuff").add_numeric_link(c)
 	print(main_chain.get_calculated_chain())
 
 func test3() -> void:
@@ -80,7 +69,7 @@ func test3() -> void:
 	var d = 7
 	var e = 11
 	
-	var main_chain: CalculationManager.CalcChain = CalcChain.new("sum", "main")
+	var main_chain: CalculationManager.CalcChain = CM.CalcChain.new("sum", "main")
 	main_chain\
 		.add_numeric_chain("multiplication", [a, b])\
 		.add_numeric_chain("multiplication", [c, d], "chain2")
@@ -107,9 +96,9 @@ func test4() -> void:
 	var F: float = 3
 	var G: float = 4
 
-	var main_chain: CalculationManager.CalcChain = CalcChain.new("division", "main")
-	var sub_chain1: CalculationManager.CalcChain = CalcChain.new("multiplication", "sub1")
-	var sub_chain2: CalculationManager.CalcChain = CalcChain.new("multiplication", "sub2")
+	var main_chain: CalculationManager.CalcChain = CM.CalcChain.new("division", "main")
+	var sub_chain1: CalculationManager.CalcChain = CM.CalcChain.new("multiplication", "sub1")
+	var sub_chain2: CalculationManager.CalcChain = CM.CalcChain.new("multiplication", "sub2")
 	
 	#((A+B)*(C-D-E))
 	sub_chain1\
@@ -222,13 +211,13 @@ func apply_effect(source_entity: Node, target_entity: Node, effect_name: String,
 	
 	var target_property: String = effect.get_effect_target()["property"]
 	
-	_register_property_on_map_effect(target_component, target_property, CalcChain.new("sum"))
+	_register_property_on_map_effect(target_component, target_property, CM.CalcChainFactory.stat_mod_ratio())
 	
 """Implementar efeito aleatorio e/ou aplicar todos os efeitos"""
 
-func get_respective_calculaion_chain() -> CalcChain:
+func get_respective_calculaion_chain() -> CalculationManager.CalcChain:
 	## entity, component name, property
-	return CalcChain.new("sum")
+	return CM.CalcChain.new("sum")
 
 ## This function actually is responsible to apply the effect, its means change directly the affected component.
 ## For internal purposes only, externally the effects is better applied with queue_effect()

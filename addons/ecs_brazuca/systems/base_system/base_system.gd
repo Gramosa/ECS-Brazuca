@@ -7,8 +7,7 @@ extends Node
 ## - Do NOT override the _init() function (Utilize super() after define the required components)
 class_name BaseSystem
 
-const CalcLink: GDScript = CalculationManager.CalcLink
-const CalcChain: GDScript = CalculationManager.CalcChain
+var CM: CalculationManager = CalculationManager.new()
 
 ## An array of component groups names that entities must belong to in order to be added to the `entities` dictionary.
 ## Each component must be in at least one of these groups to be considered by the system.

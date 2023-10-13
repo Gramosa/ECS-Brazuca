@@ -48,7 +48,7 @@ class CalcChain extends CalcBase:
 	var _operator_function: Callable
 	
 	## An array who contains links, so links together makes a chain
-	var _chain: Array
+	var _chain: Array[CalcBase]
 	
 	## Actually all chains who may hold this chain as child
 	var _parents: Array[CalcChain]
@@ -146,7 +146,7 @@ class CalcChain extends CalcBase:
 		return self
 	
 	## Add a link using the value directly, its make possible to add a link without instancing it before
-	func add_numeric_link(value: Variant, index: int = -1, tag: String = "") -> CalcChain:
+	func add_numeric_link(value: Variant, tag: String = "", index: int = -1) -> CalcChain:
 		var link: CalcLink = CalcLink.new(value, tag)
 		add_link(link, index)
 		return self
@@ -174,7 +174,7 @@ class CalcChain extends CalcBase:
 			tags.assign(dummy_array)
 			
 		for i in range(len(values)):
-			add_numeric_link(values[i], -1, tags[i])
+			add_numeric_link(values[i], tags[i])
 		
 		return self
 	
@@ -256,6 +256,7 @@ class CalcChain extends CalcBase:
 	
 	## This method take a link usign the BFS alghortim (Breadth-first Search)
 	## This means, it will search the link in the current chain first (neighbor nodes), and then search the sub chains
+	## It is expected to be faster than dfs since does not utilize recursion
 	func get_link_by_tag_bfs(tag: String) -> CalcBase:
 		var queue: Array = _chain.duplicate()
 		
@@ -301,8 +302,8 @@ class CalcChainFactory:
 	# tags ignored: div
 	# (([buff*]/[debuff*]) * multiplication_main)
 	static func stat_mod_ratio() -> CalcChain:
-		var buff: CalcChain = CalcChain.new("multiplication", "buff")
-		var debuff: CalcChain = CalcChain.new("multiplication", "debuff")
+		var buff: CalcChain = CalcChain.new("multiplication", "buff").add_numeric_link(1)
+		var debuff: CalcChain = CalcChain.new("multiplication", "debuff").add_numeric_link(1)
 		
 		var new_chain: CalcChain = CalcChain.new("multiplication", "multiplication_main")\
 		.add_chain("division", [buff, debuff], "div")

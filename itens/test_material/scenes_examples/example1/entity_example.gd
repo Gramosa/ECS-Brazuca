@@ -20,7 +20,7 @@ func _input(event):
 	elif event.is_action_pressed("testar"):
 		var start = Time.get_ticks_msec()
 		#effect_system.test()
-		effect_system.test2()
+		#effect_system.test2()
 		#effect_system.test3()
 		#effect_system.test4()
 		var end = Time.get_ticks_msec() - start
@@ -28,16 +28,16 @@ func _input(event):
 	
 # Called by both HealthComponent
 # Maybe pass the component name with signal???
-func _on_health_component_health_changed(new_health: int, behaviour: HealthComponent.CHANGE_BEHAVIOUR):
-	if behaviour == HealthComponent.CHANGE_BEHAVIOUR.DECREASED:
+func _on_health_component_health_changed(old_health: float, new_health: float):
+	if new_health < old_health:
 		"""Lembrando que o sistema de efeito ainda nao foi totalmente implementado"""
 		effect_system.apply_effect(self, self, "Endurance", "", "PrimaryHealth")
 		print("levou dano")
 	
-	elif behaviour == HealthComponent.CHANGE_BEHAVIOUR.INCREASED:
+	elif new_health > old_health:
 		print("Curou")
 	
-	elif behaviour == HealthComponent.CHANGE_BEHAVIOUR.NOT_CHANGED:
+	elif new_health == old_health:
 		# In that case the health will health will be the same only if its 0 or max_health
 		"""Uma maneira meio porca de fazer isso, mudar no futuro"""
 		if new_health != 0:

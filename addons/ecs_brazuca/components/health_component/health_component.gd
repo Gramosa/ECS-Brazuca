@@ -7,19 +7,22 @@ class_name HealthComponent
 
 ## Emited when the health reach to 0 for the first time, this means when the entity become dead (in other words).
 signal health_depleted
+
 ## Emitted when the health increase from 0 to any value, this means when the entity revive (in other words).
 signal health_recovered
+
 ## Emited every call of update_health(), so does not change the property health directly, use the method update_health().
-signal health_changed(new_health: int, behaviour: CHANGE_BEHAVIOUR)
+signal health_changed(old_health: float, new_health: float)
+
 ## Emited when the resistance_ratio was changed
-signal resistance_ratio_changed(new_resistance_ratio: float, behaviour: CHANGE_BEHAVIOUR)
+signal resistance_ratio_changed(old_resistance_ratio: float, new_resistance_ratio: float)
 
 const health_points_path: PackedScene = preload("health_points.tscn")
 
 @export_group("Health")
 
 ## The max_health value, during runtime change this value using the method change_max_health()
-@export var max_health: int:
+@export var max_health: float:
 	set(new_max_health):
 		if new_max_health < 0:
 			max_health = 0
@@ -27,7 +30,7 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 			max_health = new_max_health
 
 ## The initial value for the entity, clamped to be at max the max_health
-@export var initial_health: int:
+@export var initial_health: float:
 	set(new_initial_health):
 		initial_health = clamp(new_initial_health, 0, max_health)
 
@@ -53,29 +56,26 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 @export var color_healed: Color = Color.GREEN
 
 ## Does NOT change health directly, utilize update_health.
-var health: int
+var health: float
 
 func _init():
 	super()
 	add_to_group("HealthComponentGroup", true)
 
-func get_health() -> int:
+func get_health() -> float:
 	return health
 
 func get_resistance_ratio() -> float:
 	return resistance_ratio
 
 func _ready() -> void:
+	super()
 	
-	"""No futuro transferir a chamada dessa função para BaseComponent"""
-	#Verify if the signals was connected
-	if ignore_signal_warnings == false:
-		verify_connections()
-
 	health = initial_health
 
 # Verify if the necessary connections was made, can be by editor or before the call for verify_connections in _ready()
 func verify_connections() -> void:
+	super()
 	if len(health_depleted.get_connections()) == 0:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([health_depleted.get_name(), self.get_name()]))
 	
@@ -88,10 +88,10 @@ func verify_connections() -> void:
 	if len(resistance_ratio_changed.get_connections()) == 0:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([resistance_ratio_changed.get_name(), self.get_name()]))
 
-func update_health(damage: int) -> void:
+func update_health(damage: float) -> void:
 	
 	var new_health = clamp(health - damage, 0, max_health)
-	var health_behaviour: CHANGE_BEHAVIOUR
+	var delta_health: float = new_health - health
 	
 	# If the new_health be 0 and the previous health was different than 0, this means the entity just died
 	if new_health == 0 and health != 0:
@@ -100,25 +100,13 @@ func update_health(damage: int) -> void:
 	elif new_health > 0 and health == 0:
 		health_recovered.emit()
 	
-	# If the new_health are high than the health, its mean a healing
-	if new_health > health:
-		health_behaviour = CHANGE_BEHAVIOUR.INCREASED
-
-	# If the new_health be equal to the health, nothing will change
-	elif new_health == health:
-		health_behaviour = CHANGE_BEHAVIOUR.NOT_CHANGED
-	
-	# If the new_health is lower than the previuous one	
-	else:
-		health_behaviour = CHANGE_BEHAVIOUR.DECREASED
-	
-	health_changed.emit(new_health, health_behaviour)
-	health = new_health
+	health_changed.emit(health, new_health)
+	update_property("health", new_health)
 	
 	if visible_health_points == true:
-		show_health_points(health_behaviour)
+		show_health_points(delta_health)
 
-func show_health_points(health_behaviour: CHANGE_BEHAVIOUR) -> void:
+func show_health_points(health_variation: float) -> void:
 	
 	var health_points: Node2D = health_points_path.instantiate()
 	# If its equal than self, means there is not a parent who inherits from Node2D
@@ -126,15 +114,12 @@ func show_health_points(health_behaviour: CHANGE_BEHAVIOUR) -> void:
 	if _entity != self:
 		var health_points_color: Color
 		# The color of health_points will be defined according the health_behaviour
-		match health_behaviour:
-			CHANGE_BEHAVIOUR.INCREASED:
-				health_points_color = color_healed
-				
-			CHANGE_BEHAVIOUR.NOT_CHANGED:
-				health_points_color = color_nothing_changed
-			
-			CHANGE_BEHAVIOUR.DECREASED:
-				health_points_color = color_damaged
+		if health_variation > 0:
+			health_points_color = color_healed
+		elif health_variation == 0:
+			health_points_color = color_nothing_changed
+		else:
+			health_points_color = color_damaged
 		
 		health_points.setup(health, health_points_color)
 		_entity.add_child(health_points)

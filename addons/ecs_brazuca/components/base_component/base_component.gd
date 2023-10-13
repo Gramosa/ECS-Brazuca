@@ -8,11 +8,13 @@ extends Node
 ## Do NOT override the functions _init, _ready and _exit_tree (Utilize super() in the beggining of these functions)
 class_name BaseComponent
 
-## Used by the signals to indicate how some propertie have changed based on the previous value it had
-enum CHANGE_BEHAVIOUR {DECREASED, INCREASED, NOT_CHANGED}
-
 ## A general signal designed to be emitted when a proerty are depleted
 #signal property_depleted(property: String)
+
+## A general signal designed to be emitted when a proerty are recovered
+#signal property_recovered(property: String)
+
+signal property_changed(property: String, old_value: float, new_value: float)
 
 ## General warnings used for the components to notify when something are not configured, the node will work 
 const COMPONENT_WARNINGS = {
@@ -40,6 +42,15 @@ var _entity: Node = null
 func _init() -> void:
 	add_to_group("Components", true)
 	
+
+func _ready() -> void:
+	#Verify if the signals was connected
+	if ignore_signal_warnings == false:
+		verify_connections()
+
+func verify_connections() -> void:
+	if len(property_changed.get_connections()) == 0:
+		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([property_changed.get_name(), self.get_name()]))
 
 """Decidir no futuro se eh ou não uma boa ideia mamnter esse metodo estatico"""
 ## Check recursivaly if the parent of node inherits from a specifief type, if not check the grandparent, great_grandfather...
@@ -78,12 +89,15 @@ func _exit_tree() -> void:
 		get_tree().call_group_flags(SceneTree.GROUP_CALL_UNIQUE, "Systems", "_on_component_removed", self)
 	else:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
+
+func update_property(property: String, new_value: float) -> Error:
+	var old_value: float = self.get(property)
 	
-func update_property(property: String, value: int) -> Error:
-	if property not in self:
+	if old_value == null:
 		push_error("The property {0} does not exist on the component {1} from entity {2}".format([property, get_name(), _entity.get_name()]))
 		return FAILED
 	
-	
+	property_changed.emit(property, old_value, new_value)
+	self.set(property, new_value)
 	
 	return OK

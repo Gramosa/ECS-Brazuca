@@ -181,6 +181,7 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 		# check if the given specific_component_name is part of the group
 		if specific_component_name not in components_names:
 			push_warning("The component {0}, that belongs to the entity {1} is not part of the group {2}".format([specific_component_name, entity.get_name(), component_group]))
+			push_warning("Check if the name of the component was correctly written, or if the group are correct")
 			return false
 	
 	var number_of_components_from_same_group: int = len(entities[entity_id][1][component_group])
@@ -199,7 +200,7 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 ## Usualy used by the system to take the reference of the component
 func get_component_from_entity(entity: Node, component_group: String, specific_component_name: String = "") -> BaseComponent:
 	var entity_id: int = entity.get_instance_id()
-	if can_system_operate_entity(entity, component_group, specific_component_name) == true:
+	if can_system_operate_entity(entity, component_group, specific_component_name):
 		## If passes the tests with specific_component_name equal to "", means there is only one component from the component_group
 		if specific_component_name == "":
 			return entities[entity_id][1][component_group][0]
@@ -208,5 +209,5 @@ func get_component_from_entity(entity: Node, component_group: String, specific_c
 			var component_name = component.get_name()
 			if component_name == specific_component_name:
 				return component
-				
+	
 	return null

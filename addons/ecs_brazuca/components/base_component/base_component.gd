@@ -90,6 +90,8 @@ func _exit_tree() -> void:
 	else:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
 
+## An generic alternastive to modify an property, impoortant to note, it may ignore specicifc methods
+## i.e update_health from health component
 func update_property(property: String, new_value: float) -> Error:
 	var old_value: float = self.get(property)
 	

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://lirvrk4ju1hi"
-path="res://.godot/imported/effect_component_icon.svg-98a0bcb3adaca136a8d922785eb4d8b1.ctex"
+path="res://.godot/imported/ability_component_icon.svg-aea76f349258f4344807ff86383213fd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/ecs_brazuca/components/effect_component/effect_component_icon.svg"
-dest_files=["res://.godot/imported/effect_component_icon.svg-98a0bcb3adaca136a8d922785eb4d8b1.ctex"]
+source_file="res://addons/ecs_brazuca/components/ability_component/ability_component_icon.svg"
+dest_files=["res://.godot/imported/ability_component_icon.svg-aea76f349258f4344807ff86383213fd.ctex"]
 
 [params]
 

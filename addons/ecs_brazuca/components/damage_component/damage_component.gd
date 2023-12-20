@@ -11,11 +11,11 @@ class_name DamageComponent
 @export_range(0.001, 1000) var damage_ratio: float = 1
 
 @export_group("Effect")
-## If true effects can be applied according a EffectComponent
+## If true effects can be applied according a AbilityComponent
 @export var apply_effect: bool = false
 
 ## The effects applied, only works if apply_effect is true
-@export var effect_component: EffectComponent
+@export var effect_component: AbilityComponent
 
 func _init() -> void:
 	super()

@@ -1,13 +1,13 @@
 """NÃO IMPLEMENTADO AINDA, NÃO FUNCIONAL"""
 """
 No futuro se for necessario mais componentes com função puramente de container, fazer a herança a partir de uma classe intermediaria,
-então adicionar a API necessaria para containers. Talvez um ContainerComponent entre a BaseComponent e EffectComponent (hehe ficaria top)
+então adicionar a API necessaria para containers. Talvez um ContainerComponent entre a BaseComponent e AbilityComponent (hehe ficaria top)
 """
-@icon("effect_component_icon.svg")
+@icon("ability_component_icon.svg")
 extends BaseComponent
 
 ## This class are a container for EffectData's objects, its managed by a EffectSystem
-class_name EffectComponent
+class_name AbilityComponent
 
 @export_group("Effects")
 ## Availibe Effects the entity can apply to itself or to others entities
@@ -18,11 +18,11 @@ var effect_names: Array[String]
 func _init() -> void:
 	super()
 	
-	add_to_group("EffectComponentGroup", true)
+	add_to_group("AbilityComponentGroup", true)
 
 func get_availibe_effects() -> Array[EffectData]:
 	if availibe_effects.is_empty():
-		push_warning("The EffectComponent {0} from entity {1} are empty, its impossible to apply any effect".format([self.get_name(), _entity.get_name()]))
+		push_warning("The AbilityComponent {0} from entity {1} are empty, its impossible to apply any effect".format([self.get_name(), _entity.get_name()]))
 	
 	return availibe_effects
 	

@@ -1,11 +1,11 @@
 [gd_scene load_steps=10 format=3 uid="uid://dcovxsjfqca2t"]
 
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_tylnr"]
-[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/effect_system/effect_system.gd" id="2_sr5fl"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/systems/ability_system/ability_system.gd" id="2_sr5fl"]
 [ext_resource type="PackedScene" uid="uid://c66bh86whixep" path="res://itens/test_material/scenes_examples/example1/entity.tscn" id="3_3bb4k"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="4_aj5qr"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="5_a4o2q"]
-[ext_resource type="Script" path="res://addons/ecs_brazuca/components/effect_component/effect_component.gd" id="6_ctk7b"]
+[ext_resource type="Script" path="res://addons/ecs_brazuca/components/ability_component/ability_component.gd" id="6_xxc3l"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/resources/effect_data.gd" id="7_h5wxr"]
 [ext_resource type="Script" path="res://itens/test_material/scenes_examples/example1/entities.gd" id="8_3chi4"]
 
@@ -26,7 +26,7 @@ effect_value = 2.0
 unique_name_in_owner = true
 script = ExtResource("1_tylnr")
 
-[node name="EffectSystem" type="Node" parent="Systems"]
+[node name="AbilitySystem" type="Node" parent="Systems"]
 unique_name_in_owner = true
 script = ExtResource("2_sr5fl")
 
@@ -54,8 +54,8 @@ ignore_signal_warnings = true
 script = ExtResource("5_a4o2q")
 damage = 50000
 
-[node name="EffectComponent" type="Node" parent="PlayerTest"]
-script = ExtResource("6_ctk7b")
+[node name="AbilityComponent" type="Node" parent="PlayerTest"]
+script = ExtResource("6_xxc3l")
 availibe_effects = Array[ExtResource("7_h5wxr")]([SubResource("Resource_nm8cl")])
 ignore_signal_warnings = true
 

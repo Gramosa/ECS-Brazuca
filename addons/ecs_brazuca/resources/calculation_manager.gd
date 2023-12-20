@@ -4,7 +4,6 @@ extends Resource
 ## It was designed to be utilized by the systems
 class_name CalculationManager
 
-
 ## This class provide a bunch of classes used to perform calculations, 
 class CalcBase:
 	var _tag: String
@@ -13,6 +12,7 @@ class CalcBase:
 
 class CalcLink extends CalcBase:
 	var _value: float
+	var _timer: Timer = Timer.new()
 	
 	func _init(value: float, tag: String = ""):
 		_value = value
@@ -21,7 +21,7 @@ class CalcLink extends CalcBase:
 	func duplicate() -> CalcLink:
 		var new_link = CalcLink.new(_value, _tag)
 		return new_link
-	
+
 ## Its an utility class, who designs an DAG (directed acyclic graph), that was designed to perform mathematic operations in a flexible way (for now using sum, multiplication and division)
 ## Each chain have an operation, and was designed to have only one operation, and this operation tell how the links must be merged. You can think chains as () in a mathemmatic expression
 ## The links in the chain can be: a Calclink or another CalcChain
@@ -145,12 +145,6 @@ class CalcChain extends CalcBase:
 		
 		return self
 	
-	## Add a link using the value directly, its make possible to add a link without instancing it before
-	func add_numeric_link(value: Variant, tag: String = "", index: int = -1) -> CalcChain:
-		var link: CalcLink = CalcLink.new(value, tag)
-		add_link(link, index)
-		return self
-	
 	## add multiple links. Check add_link()
 	func add_multiple_links(links: Array[CalcBase]) -> CalcChain:
 		if links.is_empty():
@@ -161,10 +155,15 @@ class CalcChain extends CalcBase:
 			
 		return self
 	
-	## Add multiple links direct, without instancing the links before. If tags does not have enought names to
+	## Add a link using the value directly, its make possible to add a link without instancing it before
+	func add_numeric_link(value: float, tag: String="", index: int = -1) -> CalcChain:
+		add_link(CalcLink.new(value, tag), index)
+		return self
+	
+	## Create multiple links directly, without instancing the links before. If tags does not have enought names to
 	## match with values, new empty strings will be added. 
-	## If tags have more names than values have items, the excedent will be ignored
-	func add_multiple_numeric_links(values: Array[Variant], tags: Array[String] = []) -> CalcChain:
+	## If tags have more names than 'values' have items, the excedent will be ignored
+	func add_multiple_numeric_links(values: Array[float], tags: Array[String] = []) -> CalcChain:
 		var delta_lenght: int = len(values) - len(tags)
 		# will be higher than 0 if more values was given than tags, its used to fill the rest with empty strings
 		if delta_lenght > 0:
@@ -172,20 +171,10 @@ class CalcChain extends CalcBase:
 			dummy_array.resize(delta_lenght)
 			dummy_array.fill("")
 			tags.assign(dummy_array)
-			
+		
 		for i in range(len(values)):
 			add_numeric_link(values[i], tags[i])
 		
-		return self
-	
-	## An shorthand to add a chain directly
-	func add_chain(operation: String, links: Array[CalcBase], chain_tag: String = "", index: int = -1) -> CalcChain:
-		add_link(CalcChain.new(operation, chain_tag).add_multiple_links(links), index)
-		return self
-	
-	## An shorthand to add a chain directly, and without instancing its links child
-	func add_numeric_chain(operation: String, values: Array[Variant], chain_tag: String = "", tags: Array[String] = [], index: int = -1) -> CalcChain:
-		add_link(CalcChain.new(operation, chain_tag).add_multiple_numeric_links(values, tags), index)
 		return self
 	
 	"""Corrigir depois"""
@@ -200,7 +189,7 @@ class CalcChain extends CalcBase:
 		
 		_set_is_update_recursivaly(false)
 	
-	func _get_link_value(link: Variant): #Return float or null
+	func _get_link_value(link: CalcBase): #Return float or null
 		if link is CalcLink:
 			#_effects_names.append(null)
 			return link._value
@@ -299,6 +288,22 @@ class CalcChain extends CalcBase:
 
 """Nudar os nomes dos metodos no futuro, por algo mais descritivo"""
 class CalcChainFactory:
+	## An shorthand to create a chain directly filled with links/chains
+	static func calc_chain(operation: String, links: Array[CalcBase], chain_tag: String = "") -> CalcChain:
+		var chain = CalcChain.new(operation, chain_tag)
+		for link in links:
+			chain.add_link(link)
+		return chain
+	
+	static func numeric_calc_chain(
+	operation: String, 
+	values: Array[float], 
+	chain_tag: String = "", 
+	links_tags: Array[String] = []) -> CalcChain:
+		var links: Array[CalcBase]
+		links.assign(CalcLinkFactory.multiple_numeric_links(values, links_tags))
+		return calc_chain(operation, links, chain_tag)
+	
 	# tags ignored: div
 	# (([buff*]/[debuff*]) * multiplication_main)
 	static func stat_mod_ratio() -> CalcChain:
@@ -306,7 +311,7 @@ class CalcChainFactory:
 		var debuff: CalcChain = CalcChain.new("multiplication", "debuff").add_numeric_link(1)
 		
 		var new_chain: CalcChain = CalcChain.new("multiplication", "multiplication_main")\
-		.add_chain("division", [buff, debuff], "div")
+		.add_link(calc_chain("division", [buff, debuff], "div"))
 		return new_chain
 	
 	# tags ignored: div
@@ -317,3 +322,28 @@ class CalcChainFactory:
 		var new_chain: CalcChain = stat_mod_ratio().add_link(plus_chain, 0)
 		
 		return new_chain
+
+class CalcLinkFactory:
+	## Create a link using the value directly
+	static func numeric_link(value: float, tag: String="") -> CalcLink:
+		return CalcLink.new(value, tag)
+	
+	## Create multiple links directly, without instancing the links before. If tags does not have enought names to
+	## match with values, new empty strings will be added. 
+	## If tags have more names than 'values' have items, the excedent will be ignored
+	static func multiple_numeric_links(values: Array[float], tags: Array[String] = []) -> Array[CalcLink]:
+		var delta_lenght: int = len(values) - len(tags)
+		# will be higher than 0 if more values was given than tags, its used to fill the rest with empty strings
+		if delta_lenght > 0:
+			var dummy_array: Array[String]
+			dummy_array.resize(delta_lenght)
+			dummy_array.fill("")
+			tags.assign(dummy_array)
+		
+		var links: Array[CalcLink]
+		for i in range(len(values)):
+			links.append(numeric_link(values[i], tags[i]))
+		
+		return links
+	
+	

@@ -13,15 +13,7 @@ script = ExtResource("1_8fo7y")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_ml0vo")
-max_health = 50000
-initial_health = 50000
-resistance_ratio = null
-visible_health_points = null
-color_nothing_changed = null
-color_damaged = null
-color_healed = null
 ignore_signal_warnings = true
-take_from_id_component = null
 
 [node name="DamageComponent" type="Node" parent="."]
 script = ExtResource("3_ox0fj")

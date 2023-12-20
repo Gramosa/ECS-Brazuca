@@ -33,12 +33,16 @@ func do_continuous_damage(source_entity: Node, target_entity: Node) -> void:
 
 func _get_real_damage(damage_component: DamageComponent, health_component: HealthComponent, true_damage: bool) -> int:
 	var base_damage: int = damage_component.get_damage()
-	var calc_chain: CalculationManager.CalcChain = CM.CalcChain.new("multiplication").add_numeric_link(base_damage)
+	var calc_chain: CalculationManager.CalcChain = CM.CalcChain.new("multiplication")\
+		.add_link(CM.CalcLinkFactory.numeric_link(base_damage))
+		
 	# The true damage ignore the resistance and damage_ratio
 	if true_damage != true:
 		var damage_ratio: int = damage_component.get_damage_ratio()
 		var resistance_ratio: int = health_component.get_resistance_ratio()
 		# base_damage * (damage_ratio / resistance_ratio)
-		calc_chain.add_numeric_chain("division", [damage_ratio, resistance_ratio])
+		# Would be better if this expression be less verbose
+		var links: Array[CalculationManager.CalcLink] = CM.CalcLinkFactory.multiple_numeric_links([damage_ratio, resistance_ratio])
+		calc_chain.add_link(CM.CalcChainFactory.numeric_calc_chain("division", [damage_ratio, resistance_ratio]))
 	
 	return int(calc_chain.get_calculated_chain())

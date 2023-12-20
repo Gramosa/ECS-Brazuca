@@ -101,7 +101,7 @@ func update_health(damage: float) -> void:
 		health_recovered.emit()
 	
 	health_changed.emit(health, new_health)
-	update_property("health", new_health)
+	health = new_health
 	
 	if visible_health_points == true:
 		show_health_points(delta_health)

@@ -5,8 +5,8 @@
 extends BaseSystem
 
 class_name AbilitySystem
-
-## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependend, since its does not register the entity
+"""
+## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependent, since its does not register the entity
 ## When a component are affected by an effect for the first time, its registered here, and the property in question have an CalcChain assigned to it.
 ## If the duraction are higher than 0 a cooldown are created, in the end, the effect are removed
 ## If the duraction are equal to -1, the system will take this like a permanent effect, its the structure of _map_effects
@@ -57,7 +57,7 @@ func register_property(component: BaseComponent, property: String, calc_chain: C
 		_map_effects[component_id] = {}
 	
 	if property not in _map_effects[component_id]:
-		"""Por enquanto o valor base da propriedade é adicionado como primeiro elemento da corrente"""
+		\"""Por enquanto o valor base da propriedade é adicionado como primeiro elemento da corrente\"""
 		var property_value: float = component.get(property)
 		## Add the base value taken from the component to the respective chain
 		var base_value: CalculationManager.CalcLink = CM.CalcLinkFactory.numeric_link(property_value, "base_value")
@@ -75,7 +75,7 @@ func _register_property_on_map_effect(component: BaseComponent, property: String
 		_map_effects[component_id] = {}
 	
 	if property not in _map_effects[component_id]:
-		"""Por enquanto o valor base da propriedade é adicionado como primeiro elemento da corrente"""
+		\"""Por enquanto o valor base da propriedade é adicionado como primeiro elemento da corrente\"""
 		var property_value: float = component.get(property)
 		## Add the base value taken from the component to the respective chain
 		calc_chain.add_numeric_link(property_value, "base_value", 0)
@@ -128,7 +128,7 @@ func _modify_property(component: BaseComponent, property: String, effect: Effect
 			EffectData.DUPLICATED_BEHAVIOURS.IGNORE:
 				return
 			EffectData.DUPLICATED_BEHAVIOURS.REPLACE:
-				"""É preciso mudar o estado das correntes que tem esse link para 'não atualizado'"""
+				\"""É preciso mudar o estado das correntes que tem esse link para 'não atualizado'\"""
 				effect_link._value = effect.effect_value
 			_:
 				push_error("Behaviour not implemented yet")
@@ -163,17 +163,17 @@ func apply_effect(source_entity: Node, target_entity: Node, effect_name: String,
 	# Take the component who will be affected, based on the effect who will be aplied
 	var target_component: BaseComponent = get_component_from_entity(target_entity, effect_target["component_target_group"], target_component_name)
 	if target_component == null:
-		push_warning("Effect Aplication: The effect ({0}) of type ({1}) could not solve, due not found the target component".format([effect.effect_name, EffectData.EFFECT_TYPES.keys()[effect.effect_type]]))
+		#push_warning("Effect Aplication: The effect ({0}) of type ({1}) could not solve, due not found the target component".format([effect.effect_name, EffectData.EFFECT_TYPES.keys()[effect.effect_type]]))
 		return
 	
 	var target_property: String = effect.get_effect_target()["property"]
 	
-	"""Talvez no futuro separar o registro da aplicação"""
+	\"""Talvez no futuro separar o registro da aplicação\"""
 	_register_property_on_map_effect(target_component, target_property, CM.CalcChainFactory.stat_mod_ratio())
 	if is_property_registered(target_component.get_instance_id(), target_property):
 		_modify_property(target_component, target_property, effect)
 	
-"""Implementar efeito aleatorio e/ou aplicar todos os efeitos"""
+\"""Implementar efeito aleatorio e/ou aplicar todos os efeitos\"""
 
 func _on_effect_time_timeout(timer: Timer) -> void:
 	print("effect timeout" + str(timer.get_instance_id()))
@@ -182,3 +182,4 @@ func _on_effect_time_timeout(timer: Timer) -> void:
 
 func remove_effect(effect_name: String, target_entity: Node) -> void:
 	var entity_id: int = target_entity.get_instance_id()
+"""

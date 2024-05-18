@@ -9,40 +9,45 @@ func _init() -> void:
 	_components_requireds = ["HealthComponentGroup", "DamageComponentGroup"]
 
 ## if oposite_behaviour be true, the damage will be multiplied by -1. So damage become a healing and vice-versa
+## The logic is a callable with this signature logic(HealthComponent, DamageComponent) -> float
 ## specific_component_name only is necessary if the entity have two or more componenets from the same group
-func do_damage(source_entity: Node, target_entity: Node, oposite_behaviour: bool = false, true_damage: bool = false, source_component_name: String = "", target_component_name: String = "") -> void:
-	
+func do_damage(source_entity: Node, target_entity: Node, logic: Callable, oposite_behaviour: bool = false, source_component_name: String = "", target_component_name: String = "") -> void:
 	# The source_entity must have at least one component from DamageComponentGroup, and target_entity at least one HealthComponent
-	var target_component = get_component_from_entity(target_entity, "HealthComponentGroup", target_component_name)
+	var target_component: HealthComponent = get_component_from_entity(target_entity, "HealthComponentGroup", target_component_name)
 	if target_component == null:
 		return
 		
-	var source_component = get_component_from_entity(source_entity, "DamageComponentGroup", source_component_name)
+	var source_component: DamageComponent = get_component_from_entity(source_entity, "DamageComponentGroup", source_component_name)
 	if source_component == null:
 		return
 	
-	var real_damage = _get_real_damage(source_component, target_component, true_damage)
+	var damage: float = logic.call(source_component, target_component)
 	
 	if oposite_behaviour == false:
-		target_component.update_health(real_damage)
+		target_component.update_health(damage)
 	else:
-		target_component.update_health(-real_damage)
+		target_component.update_health(-damage)
+
+func do_normal_damage(source_entity: Node, target_entity: Node, source_component_name: String = "", target_component_name: String = "") -> void:
+	var logic: Callable = func(source_component: DamageComponent, target_component: HealthComponent) -> float:
+		return source_component.get_real_damage() / target_component.get_resistance_ratio()
 	
+	return do_damage(source_entity, target_entity, logic, false, source_component_name, target_component_name)
+
+func do_true_damage(source_entity: Node, target_entity: Node, source_component_name: String = "", target_component_name: String = "") -> void:
+	var logic: Callable = func(source_component: DamageComponent, target_component: HealthComponent) -> float:
+		return source_component.get_damage()
+	
+	return do_damage(source_entity, target_entity, logic, false, source_component_name, target_component_name)
+
 func do_continuous_damage(source_entity: Node, target_entity: Node) -> void:
 	pass
 
-func _get_real_damage(damage_component: DamageComponent, health_component: HealthComponent, true_damage: bool) -> int:
-	var base_damage: int = damage_component.get_damage()
-	var calc_chain: CalculationManager.CalcChain = CM.CalcChain.new("multiplication")\
-		.add_link(CM.CalcLinkFactory.numeric_link(base_damage))
-		
-	# The true damage ignore the resistance and damage_ratio
-	if true_damage != true:
-		var damage_ratio: int = damage_component.get_damage_ratio()
-		var resistance_ratio: int = health_component.get_resistance_ratio()
-		# base_damage * (damage_ratio / resistance_ratio)
-		# Would be better if this expression be less verbose
-		var links: Array[CalculationManager.CalcLink] = CM.CalcLinkFactory.multiple_numeric_links([damage_ratio, resistance_ratio])
-		calc_chain.add_link(CM.CalcChainFactory.numeric_calc_chain("division", [damage_ratio, resistance_ratio]))
-	
-	return int(calc_chain.get_calculated_chain())
+func do_normal_healing():
+	pass
+
+func do_true_healing():
+	pass
+
+func do_continuous_healing():
+	pass

@@ -2,46 +2,24 @@
 @tool
 extends Resource
 
-class_name EffectData
-
-"""Ideias de effeitos: CONTINOUS_DAMAGE, VELOCITY"""
-enum EFFECT_TYPES {NOTHING=0, RESISTANCE=1, VELOCITY=2, STRENGHT=3}
+class_name AbilityData
 
 """NAO IMPLEMENTADO"""
 ## Its tell how the system must deal when a duplicated effect are applied. 
-enum DUPLICATED_BEHAVIOURS {NOTHING=0, IGNORE=1, REPLACE=2, SUM=3, MULTIPLICATION=4}
-
-const EFFECT_TARGETS: Dictionary = {
-	EFFECT_TYPES.NOTHING: {
-		"component_target_group": null,
-		"property": null,
-	},
-	EFFECT_TYPES.RESISTANCE: {
-		"component_target_group": "HealthComponentGroup",
-		"property": "resistance_ratio",
-	},
-	EFFECT_TYPES.VELOCITY: {
-		"component_target_group": null,
-		"property": null,
-	},
-	EFFECT_TYPES.STRENGHT: {
-		"component_target_group": "DamageComponentGroup",
-		"property": "damage_ratio",
-	}
-}
+enum DUPLICATED_BEHAVIOURS {IGNORE=0, REPLACE=1, SUM=2, MULTIPLICATION=3}
 
 ## The specific name of the effect, for tracking and organization, like Burn, Freeze and etc...
 @export_placeholder("Effect Name") var effect_name: String
 
 # Mental note: EFFECT_TYPES and effect_type are different, effect_type are just one of the possibles EFFECT_TYPES (Isso é obvio mas continuo me confundindo)
 ## Chose one of the existents effects, except for NOTHING, because well... its does nothing
-@export var effect_type: EFFECT_TYPES = EFFECT_TYPES.NOTHING
+var effect_target: String
 
 ## Its tell the system what position in the CalcChain the effect will be added
-@export var chain_tag: String = "buff"
+@export var chain_tag: String = "BUFF"
 
 ## Chose one of the behaviours for the effects, this means, how the system must modify the property
-@export var duplicated_behaviour: DUPLICATED_BEHAVIOURS = DUPLICATED_BEHAVIOURS.NOTHING
+@export var duplicated_behaviour: DUPLICATED_BEHAVIOURS = DUPLICATED_BEHAVIOURS.IGNORE
 	
 ## The duration of the effect, if 0 the effect will not be applied, if less than 0 the effect will be considered permanent.
 ## A permanent effect are NOT removed automatically by the system with a cooldown
@@ -54,6 +32,7 @@ const EFFECT_TARGETS: Dictionary = {
 		
 		effect_value = new_effect_value
 
+"""
 ## Take the respective dictionary target, based on the effect_type
 func get_effect_target() -> Dictionary:
 	var effect_target: Dictionary = EFFECT_TARGETS[effect_type]
@@ -63,3 +42,4 @@ func get_effect_target() -> Dictionary:
 	else:
 		push_warning("The effect {0} was not implemented yet, since there is at least one null value on the respective EFFECT_TARGETS. Operation ignored".format([effect_name]))
 		return {}
+"""

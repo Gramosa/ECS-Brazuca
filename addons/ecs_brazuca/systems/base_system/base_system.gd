@@ -7,17 +7,15 @@ extends Node
 ## - Do NOT override the _init() function (Utilize super() after define the required components)
 class_name BaseSystem
 
-var CM: CalculationManager = CalculationManager.new()
-
 ## An array of component groups names that entities must belong to in order to be added to the `entities` dictionary.
 ## Each component must be in at least one of these groups to be considered by the system.
 var _components_requireds: Array[String] = []
 
 ## Important to know: an entity can not have two components with same name AND type, but it can have the same type with different names, or same name with different types.
-## An entity can have any number of components, even components with same name and same group.
+## An entity can have any number of components.
 ##
 ## The `entities` variable is a dictionary of lists with a specific nested structure:
-##   - The first level is a dictionary where each key represents the entity id, by the built-in function get_instance_id().
+##   - The first level is a dictionary where each key represents the entity id, by the built-in godot function get_instance_id().
 ##   - The second level is a list with a fixed length of 2: [entity_node, {}].
 ##   - The third level is a dictionary where each key represents a component group name.
 ##   - The fourth level is a list of component nodes belonging to the corresponding group.
@@ -138,7 +136,7 @@ func _on_component_removed(component: Node) -> void:
 			# Remove the component from the entities
 			entities[entity_id][1][component_group].erase(component)
 			
-			# Check if the component group have no more entities, if so remove the group from the entity inside entities
+			# Check if the component group have no more entities, if so, remove the group from the entity inside entities
 			if entities[entity_id][1][component_group].is_empty():
 				entities[entity_id][1].erase(component_group)
 				
@@ -147,7 +145,7 @@ func _on_component_removed(component: Node) -> void:
 					entities.erase(entity_id)
 
 
-## Checks if the specified entity can be operated on by the system.
+## Checks if the specified entity can be operated by the system.
 ## This function verifies if the entity meets the requirements to be processed by the system, considering the components associated with the system's component groups.
 ##
 ## The function checks two main conditions:

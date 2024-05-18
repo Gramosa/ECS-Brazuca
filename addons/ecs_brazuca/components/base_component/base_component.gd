@@ -14,11 +14,12 @@ class_name BaseComponent
 ## A general signal designed to be emitted when a proerty are recovered
 #signal property_recovered(property: String)
 
+## A general signal designed to be emitted when a proerty is changed
 signal property_changed(property: String, old_value: float, new_value: float)
 
 ## General warnings used for the components to notify when something are not configured, the node will work 
 const COMPONENT_WARNINGS = {
-	"COMPONENT WARNING 1": "The Signal {0} from component {1} is not connected, the component still works, but for this specific signal there isn't any purpose for the parent node",
+	"COMPONENT WARNING 1": "The Signal {0} from component {1} is not connected, the component still works, but for this specific signal there is not any purpose",
 	"COMPONENT WARNING 2": "There is not any System in the scene_tree(), the component will not work properly, since there is not a system to manage it",
 }
 
@@ -53,7 +54,7 @@ func verify_connections() -> void:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([property_changed.get_name(), self.get_name()]))
 
 """Decidir no futuro se eh ou não uma boa ideia mamnter esse metodo estatico"""
-## Check recursivaly if the parent of node inherits from a specifief type, if not check the grandparent, great_grandfather...
+## Check recursivaly if the parent of node inherits from a specified type, if not, check the grandparent, great_grandfather...
 ## If no one inherits from the specified parent_type the own node will be returned (argument "node")
 ## Important, does not need to inherity direct, but an ancestor must be from this parent_type. 
 ## For example, if parent_type arg are "Node2D", even a parent that are a CharacterBody2D will be considered a valid parent
@@ -66,10 +67,8 @@ static func get_closest_parent_from_type(node: Node, parent_type: String) -> Nod
 		#if parent.get_class() == parent_type:
 		if ClassDB.is_parent_class(parent.get_class(), parent_type):
 			return parent
-		else:
-			# In other worlds, grandparent, great-grandfather
-			# get_parent() will return the parent if have, but if there is not will return null.
-			parent = parent.get_parent()
+		
+		parent = parent.get_parent()
 	
 	push_warning("The node \"{0}\" does not have a parent who have \"{1}\" as ancestor, the own node \"{0}\" will be returned instead".format([node, parent_type]))
 	return node

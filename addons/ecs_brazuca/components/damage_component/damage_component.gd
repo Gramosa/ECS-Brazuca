@@ -28,5 +28,8 @@ func get_damage():
 func get_damage_ratio() -> float:
 	return damage_ratio
 
+func get_real_damage():
+	return damage * damage_ratio
+
 func verify_connections() -> void:
 	pass

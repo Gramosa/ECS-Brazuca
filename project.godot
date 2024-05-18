@@ -12,7 +12,7 @@ config_version=5
 
 config/name="ECS Test Project"
 run/main_scene="res://itens/test_material/scenes_examples/example1/test_ecs.tscn"
-config/features=PackedStringArray("4.0", "Mobile")
+config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 
 [display]

@@ -1,9 +1,129 @@
 extends Resource
 
-## This class provide a bunch of classes used to perform calculations, 
+## This class provide an intermediate step to perform calculations
 ## It was designed to be utilized by the systems
 class_name CalculationManager
 
+class CalcNode:
+	var _key: String #if necessary change to StringName in future
+	var _value: String
+	var _operator: String
+	var _children: Array[CalcNode]
+	var _parent: WeakRef # WeakRef<CalcNode>, to avoid memory leak
+	
+	func _init(key: String, value: String='', operator: String=''):
+		_key = key
+		_value = value
+		_operator = operator
+	
+	func _to_string():
+		var txt: String = _operator
+		if not _children:
+			txt += _value
+		else:
+			txt += '('
+			txt += _value
+			for child in _children:
+				txt += str(child)
+			txt += ')'
+		
+		return txt
+	
+	#Verify if some node is an ancestor, maybe it can lead to problem if its needed to diferentiate
+	#between not having a parent, or the parent being no more availible
+	func has_ancestor(node: CalcNode) -> bool:
+		var ancestor: CalcNode = _parent.get_ref()
+		while(ancestor != null):
+			if(ancestor == node):
+				return true
+			ancestor = ancestor._parent.get_ref()
+		return false
+	
+	func get_child(key: String) -> CalcNode:
+		if key == '.':
+			return self
+		
+		for child in _children:
+			if child._key == key:
+				return child
+		
+		return null
+
+class CalcFormula:
+	var _head: CalcNode
+	
+	func _init():
+		_head = CalcNode.new('.')
+	
+	func to_expression() -> String:
+		return str(_head)
+	
+	func get_from_path(path: String) -> CalcNode:
+		if path.is_empty():
+			push_error("The patch cannot be an empty string!")
+			return null
+		
+		var indexes: PackedStringArray = path.split('/', false)
+		var node: CalcNode = _head
+		
+		for i in indexes:
+			if node == null:
+				break
+			
+			node = node.get_child(i)
+		
+		return node
+	
+	func add(path: String, child: CalcNode):
+		var node: CalcNode = get_from_path(path)
+		if node == null:
+			push_error("Path '{0}' not found in CalcFormula '{1}'".format([path, self]))
+			return
+		
+		if node == child:
+			push_error("The node '{0}', from the path '{1}' cannot be a child of himself".format([node._key, path]))
+			return
+		
+		if node.has_ancestor(child):
+			push_error("Attempt of inserting the node '{0}' as child of node '{1}', \
+			but its already an ancestor, that would lead in circular reference.".format([child._key, node._key])\
+			)
+			return
+		
+		node._children.append(child)
+		child._parent = weakref(node)
+	
+	#TODO: Verificar se o node a ser removido nao eh o root
+	func remove(path: String):
+		if(path == "."):
+			push_error("Cannot remove the root node, so the path cannot be '.'")
+			return
+		
+		var path_and_endpoint: PackedStringArray = path.rsplit('/', true, 1)
+		if path_and_endpoint.size() == 1:
+			path_and_endpoint.insert(0, ".")
+		
+		var node: CalcNode = get_from_path(path_and_endpoint[0])
+		if node == null:
+			push_error("Path '{0}' not found in CalcFormula '{1}'".format([path_and_endpoint[0], self]))
+			return
+		
+		var endpoint: CalcNode = node.get_child(path_and_endpoint[1])
+		if endpoint == null:
+			push_error("Path '{0}' dont have the node '{1}'".format([path_and_endpoint[0], path_and_endpoint[1]]))
+			return
+		
+		node._children.erase(endpoint)
+		endpoint._parent = null
+	
+	func update(path: String, value: String):
+		var node: CalcNode = get_from_path(path)
+		if node == null:
+			push_error("Path '{0}' not found in CalcFormula '{1}'".format([path, self]))
+			return
+		
+		node._value = value
+"""
 ## This class provide a bunch of classes used to perform calculations, 
 class CalcBase:
 	var _tag: String
@@ -12,7 +132,6 @@ class CalcBase:
 
 class CalcLink extends CalcBase:
 	var _value: float
-	var _timer: Timer = Timer.new()
 	
 	func _init(value: float, tag: String = ""):
 		_value = value
@@ -177,7 +296,7 @@ class CalcChain extends CalcBase:
 		
 		return self
 	
-	"""Corrigir depois"""
+	\"""Corrigir depois\"""
 	func remove_link_by_index(index: int) -> void:
 		if index < -1 or index > len(_chain):
 			push_error("Invalid Index: Index {0} from chain {1} is out of the range".format([index, self._tag]))
@@ -286,7 +405,7 @@ class CalcChain extends CalcBase:
 		
 		return self
 
-"""Nudar os nomes dos metodos no futuro, por algo mais descritivo"""
+\"""Nudar os nomes dos metodos no futuro, por algo mais descritivo\"""
 class CalcChainFactory:
 	## An shorthand to create a chain directly filled with links/chains
 	static func calc_chain(operation: String, links: Array[CalcBase], chain_tag: String = "") -> CalcChain:
@@ -345,5 +464,4 @@ class CalcLinkFactory:
 			links.append(numeric_link(values[i], tags[i]))
 		
 		return links
-	
-	
+	"""

@@ -12,10 +12,10 @@ func _input(event):
 	"""Mudar no futuro a maneira de chamar a função do_damage, provavelmente usando sinais"""
 	# The own DamageComponent will damage the HealthComponent, just for test purpose of the system
 	if event.is_action_pressed("esquerda"):
-		damage_system.do_damage(self, self, false, false, "", actual_health_component)
+		damage_system.do_normal_damage(self, self, "", actual_health_component)
 	
 	elif event.is_action_pressed("direita"):
-		damage_system.do_damage(self, self, true, true, "", actual_health_component)
+		damage_system.do_normal_damage(self, self, "", actual_health_component)
 	
 	elif event.is_action_pressed("testar"):
 		var start = Time.get_ticks_msec()
@@ -31,7 +31,7 @@ func _input(event):
 func _on_health_component_health_changed(old_health: float, new_health: float):
 	if new_health < old_health:
 		"""Lembrando que o sistema de efeito ainda nao foi totalmente implementado"""
-		effect_system.apply_effect(self, self, "Endurance", "", "PrimaryHealth")
+		#effect_system.apply_effect(self, self, "Endurance", "", "PrimaryHealth")
 		print("levou dano")
 	
 	elif new_health > old_health:

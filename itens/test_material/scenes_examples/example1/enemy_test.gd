@@ -16,9 +16,9 @@ func _on_area_entered(area: Area2D) -> void:
 	
 	"""Mudar no futuro a maneira de chamar a função do_damage, provavelmente usando sinais."""
 	if area.is_in_group("Enemy"):
-		damage_system.do_damage(self, area)
+		damage_system.do_normal_damage(self, area)
 	else:
-		damage_system.do_damage(self, entity, false, false, "", entity.actual_health_component)
+		damage_system.do_normal_damage(self, entity, "", entity.actual_health_component)
 
 func _ready():
 	start_position = self.global_position

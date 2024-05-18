@@ -6,21 +6,22 @@ então adicionar a API necessaria para containers. Talvez um ContainerComponent 
 @icon("ability_component_icon.svg")
 extends BaseComponent
 
-## This class are a container for EffectData's objects, its managed by a EffectSystem
+## This class are a container for EffectData's objects, its managed by a AbilitySystem
 class_name AbilityComponent
 
 @export_group("Effects")
-## Availibe Effects the entity can apply to itself or to others entities
-@export var availibe_effects: Array[EffectData]
+## Availibe effects the entity can apply to itself or to others entities
+@export var availibe_effects: Array[AbilityData]
 
-var effect_names: Array[String]
+## Effects that were applied to this component
+
 
 func _init() -> void:
 	super()
 	
 	add_to_group("AbilityComponentGroup", true)
 
-func get_availibe_effects() -> Array[EffectData]:
+func get_availibe_effects() -> Array[AbilityData]:
 	if availibe_effects.is_empty():
 		push_warning("The AbilityComponent {0} from entity {1} are empty, its impossible to apply any effect".format([self.get_name(), _entity.get_name()]))
 	
@@ -35,14 +36,9 @@ func get_availibe_effects_names() -> Array[String]:
 	return effects_names
 	
 
-func get_effect_by_name(required_name: String) -> EffectData:
+func get_effect_by_name(required_name: String) -> AbilityData:
 	for effect in get_availibe_effects():
 		if effect.effect_name == required_name:
-			if effect.effect_type != EffectData.EFFECT_TYPES.NOTHING:
-				return effect
-			else:
-				push_warning("Trying to utilize the effect {0}, but it have effect_type equal to NOTHING, well nothing will happen".format([effect.effect_name]))
-				return null
-		
+			return effect
 	push_error("The effect with effect_name {0} does not exist on the component {1} from entity {2}, chose a different effect_name".format([required_name, self.get_name(), _entity.get_name()]))
 	return null

@@ -94,13 +94,14 @@ func update_health(damage: float) -> void:
 	var delta_health: float = new_health - health
 	
 	# If the new_health be 0 and the previous health was different than 0, this means the entity just died
-	if new_health == 0 and health != 0:
+	if new_health == 0 and health > 0:
 		health_depleted.emit()
 	
 	elif new_health > 0 and health == 0:
 		health_recovered.emit()
 	
 	health_changed.emit(health, new_health)
+	property_changed.emit("health", health, new_health)
 	health = new_health
 	
 	if visible_health_points == true:

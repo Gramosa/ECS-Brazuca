@@ -1,10 +1,29 @@
 """NÃO FUNCIONAL, NÃO IMPLEMENTADO"""
 """Falta possibilitar a remoção do efeito aplicado"""
-"""Para fazer isso funcionar o registro do CalcChain atrelado a uma propriedade especifica deveria ser registrado antes da aplicação do efeito."""
-"""O rastreio do tempo deve ser feito cabrini quantas para cada efeito, para cada propriedade de cada componente. Ideia: Rergistrar o Timer diretamentev em CalcLink e ele mesmo se remover de seus pais quando o tempo acabar"""
+
 extends BaseSystem
 
 class_name AbilitySystem
+
+var CF := CalculationManager.CalcFormula
+var CN := CalculationManager.CalcNode
+
+func test1():
+	var formula := CF.new()
+	formula.add(".", CN.new("base", "5"))
+	formula.add("base", CN.new("weapon", "7", "+"))
+	formula.add(".", CN.new("enchantment", "1.4", "*"))
+	print(formula.to_expression())
+	print(formula.evaluate())
+	print("Teste de update")
+	formula.update("enchantment", "2")
+	print(formula.to_expression())
+	print(formula.evaluate())
+	print("Teste de remoção")
+	formula.remove("base/weapon")
+	print(formula.to_expression())
+	print(formula.evaluate())
+
 """
 ## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependent, since its does not register the entity
 ## When a component are affected by an effect for the first time, its registered here, and the property in question have an CalcChain assigned to it.

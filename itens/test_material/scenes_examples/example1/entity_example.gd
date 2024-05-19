@@ -3,7 +3,7 @@ extends Node2D
 # Called when the node enters the scene tree for the first time.
 #@onready var damage_system: DamageSystem = get_node("../Systems/DamageSystem")
 @onready var damage_system: DamageSystem =  get_node("%DamageSystem")
-@onready var effect_system: AbilitySystem = get_node("%AbilitySystem")
+@onready var ability_system: AbilitySystem = get_node("%AbilitySystem")
 @onready var aura: Sprite2D = get_node("Aura")
 
 var actual_health_component: String = "Shield"
@@ -19,10 +19,10 @@ func _input(event):
 	
 	elif event.is_action_pressed("testar"):
 		var start = Time.get_ticks_msec()
-		#effect_system.test()
-		#effect_system.test2()
-		#effect_system.test3()
-		#effect_system.test4()
+		ability_system.test1()
+		#ability_system.test2()
+		#ability_system.test3()
+		#ability_system.test4()
 		var end = Time.get_ticks_msec() - start
 		print("tempo passado= ", end)
 	
@@ -31,7 +31,7 @@ func _input(event):
 func _on_health_component_health_changed(old_health: float, new_health: float):
 	if new_health < old_health:
 		"""Lembrando que o sistema de efeito ainda nao foi totalmente implementado"""
-		#effect_system.apply_effect(self, self, "Endurance", "", "PrimaryHealth")
+		#ability_system.apply_ability(self, self, "Endurance", "", "PrimaryHealth")
 		print("levou dano")
 	
 	elif new_health > old_health:

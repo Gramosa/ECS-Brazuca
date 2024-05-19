@@ -6,12 +6,19 @@ então adicionar a API necessaria para containers. Talvez um ContainerComponent 
 @icon("ability_component_icon.svg")
 extends BaseComponent
 
-## This class are a container for EffectData's objects, its managed by a AbilitySystem
+## This class are a container for AbilityData's objects, it is managed by an AbilitySystem
 class_name AbilityComponent
 
-@export_group("Effects")
-## Availibe effects the entity can apply to itself or to others entities
-@export var availibe_effects: Array[AbilityData]
+@export_group("Formula")
+## The initial signature of the formula.
+#@export var initial_formula_signature: String
+
+## The CalcFormula used to calculate new value
+#@export var formula: CalculationManager.CalcFormula
+
+@export_group("Ability")
+## Availibe abilities the entity can apply to a given formula
+@export var availibe_abilities: Array[AbilityData]
 
 ## Effects that were applied to this component
 
@@ -21,23 +28,23 @@ func _init() -> void:
 	
 	add_to_group("AbilityComponentGroup", true)
 
-func get_availibe_effects() -> Array[AbilityData]:
-	if availibe_effects.is_empty():
+func get_availibe_abilities() -> Array[AbilityData]:
+	if availibe_abilities.is_empty():
 		push_warning("The AbilityComponent {0} from entity {1} are empty, its impossible to apply any effect".format([self.get_name(), _entity.get_name()]))
 	
-	return availibe_effects
+	return availibe_abilities
 	
 
-func get_availibe_effects_names() -> Array[String]:
-	var effects_names: Array[String] = []
-	for effect in availibe_effects:
-		effects_names.append(effect.effect_name)
+func get_availibe_abilities_names() -> Array[String]:
+	var abilities_names: Array[String] = []
+	for effect in availibe_abilities:
+		abilities_names.append(effect.effect_name)
 	
-	return effects_names
+	return abilities_names
 	
 
 func get_effect_by_name(required_name: String) -> AbilityData:
-	for effect in get_availibe_effects():
+	for effect in get_availibe_abilities():
 		if effect.effect_name == required_name:
 			return effect
 	push_error("The effect with effect_name {0} does not exist on the component {1} from entity {2}, chose a different effect_name".format([required_name, self.get_name(), _entity.get_name()]))

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dcovxsjfqca2t"]
+[gd_scene load_steps=8 format=3 uid="uid://dcovxsjfqca2t"]
 
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/damage_system/damage_system.gd" id="1_tylnr"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/systems/ability_system/ability_system.gd" id="2_sr5fl"]
@@ -6,16 +6,7 @@
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/health_component/health_component.gd" id="4_aj5qr"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/damage_component/damage_component.gd" id="5_a4o2q"]
 [ext_resource type="Script" path="res://addons/ecs_brazuca/components/ability_component/ability_component.gd" id="6_xxc3l"]
-[ext_resource type="Script" path="res://addons/ecs_brazuca/resources/ability_data.gd" id="7_wqxpa"]
 [ext_resource type="Script" path="res://itens/test_material/scenes_examples/example1/entities.gd" id="8_3chi4"]
-
-[sub_resource type="Resource" id="Resource_kiful"]
-script = ExtResource("7_wqxpa")
-effect_name = ""
-chain_tag = "buff"
-duplicated_behaviour = 0
-effect_duraction = 0.0
-effect_value = 1e-06
 
 [node name="TestECS" type="Node"]
 
@@ -55,7 +46,6 @@ damage = 50000
 
 [node name="AbilityComponent" type="Node" parent="PlayerTest"]
 script = ExtResource("6_xxc3l")
-availibe_effects = Array[ExtResource("7_wqxpa")]([SubResource("Resource_kiful")])
 ignore_signal_warnings = true
 
 [node name="Entities" type="Node2D" parent="."]

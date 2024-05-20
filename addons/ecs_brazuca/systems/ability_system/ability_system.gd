@@ -5,13 +5,12 @@ extends BaseSystem
 
 class_name AbilitySystem
 
-var CF := CalculationManager.CalcFormula
-var CN := CalculationManager.CalcNode
+var CN := CalcFormula.CalcNode
 
 func test1():
-	var formula := CF.new()
+	var formula := CalcFormula.new()
 	formula.add(".", CN.new("base", "5"))
-	formula.add("base", CN.new("weapon", "7", "+"))
+	formula.add("./base", CN.new("weapon", "7", "+"))
 	formula.add(".", CN.new("enchantment", "1.4", "*"))
 	print(formula.to_expression())
 	print(formula.evaluate())

@@ -22,6 +22,14 @@ func test1():
 	formula.remove("base/weapon")
 	print(formula.to_expression())
 	print(formula.evaluate())
+	
+	print("Teste de signature")
+	var signatures: PackedStringArray = [
+		"(A + B) * C", "(A+B)*C", "D-(A*(C-B))", "(((A - B) * C) + D) - E",\
+		"(base + weapon) * enchantment"
+		]
+	for s in signatures:
+		print("signature {0}: tokens: {1}".format([s, CalcFormula.__tokenize_signature(s)]))
 
 """
 ## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependent, since its does not register the entity

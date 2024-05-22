@@ -8,28 +8,76 @@ var _head: CalcNode
 var _calculator: Expression = Expression.new()
 
 static func build_from_signature(signature: String) -> CalcFormula:
-	var __check_parentesis: Callable = func(string: String) -> bool:
-		var count: int = 0
-		for letter in string:
-			if letter == '(':
-				count += 1
-			elif letter == ')':
-				count -= 1
-				if count < 0:
-					return false
-		
-		return true if count == 0 else false
-		
-	if(__check_parentesis.call(signature) == false):
-		push_error("Invalid signature, wrong use of parentesis!")
+	
+	if(__check_parentesis(signature) == false):
+		push_error("Invalid signature {0}, wrong use of parentesis!".format([signature]))
 		return null
 	#(A+B)*C = (, A, +, B, ), *, C
 	#-A+B*(C-D) = -, A, +, B, *, (, C, -, D, )
+	const OPERATORS: PackedStringArray = ['+', '-', '*', '/', '^']
+	var tokens: PackedStringArray = __tokenize_signature(signature)
+	
 	var formula: CalcFormula = new()
 	
+	#helper variables
+	var stack: Array[CalcNode]
+	var current_node: CalcNode = formula._head
+	var operator: String = ""
+	var have_children: bool = false
+	
+	for token in tokens:
+		if token in OPERATORS:
+			if operator == "":
+				operator = token
+			else:
+				push_error("Consecutive operators in the signature {0}!".format([signature]))
+				return null
+		elif token == '(':
+			have_children = true
+		elif token == ')':
+			pass
+		else:
+			current_node._operator = operator
+			current_node._key = token
 	
 	
 	return formula
+
+static func __check_parentesis(string: String) -> bool:
+	var count: int = 0
+	for letter in string:
+		if letter == '(':
+			count += 1
+		elif letter == ')':
+			count -= 1
+			if count < 0:
+				return false
+	
+	return true if count == 0 else false
+
+static func __tokenize_signature(signature: String) -> PackedStringArray:
+	const SEP: PackedStringArray = ['+', '-', '*', '/', '^', '(', ')']
+	var tokens: PackedStringArray = []
+	var token: String = ""
+	
+	signature = signature.replace("**", '^')
+	
+	for i in signature:
+		if i == ' ':
+			continue
+		
+		if i not in SEP:
+			token += i
+		else:
+			if token != '':
+				tokens.append(token)
+				token = ''
+			tokens.append(i)
+	
+	if token != '':
+		tokens.append(token)
+	
+	return tokens
 
 ## This class is the branches/leafs used by the CalcFormula to build the tree
 ## Each CalcNode MUST have an unic key at same level, so two siblings cannot have the same key (but the tree can have the same key at different levels)
@@ -82,6 +130,9 @@ class CalcNode:
 	func get_child(key: String) -> CalcNode:
 		if key == '.':
 			return self
+		elif key == '..':
+			#beware of recursive or loop calls, it can lead to attempt of retrieving a parent of a null node
+			return _parent.get_ref()
 		
 		for child in _children:
 			if child._key == key:

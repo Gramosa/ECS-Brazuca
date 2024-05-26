@@ -3,7 +3,7 @@ extends Node2D
 # Called when the node enters the scene tree for the first time.
 #@onready var damage_system: DamageSystem = get_node("../Systems/DamageSystem")
 @onready var damage_system: DamageSystem =  get_node("%DamageSystem")
-@onready var ability_system: AbilitySystem = get_node("%AbilitySystem")
+@onready var ability_system: AbilitySystem = get_node("%AbilitySystem") as AbilitySystem
 @onready var aura: Sprite2D = get_node("Aura")
 
 var actual_health_component: String = "Shield"
@@ -19,7 +19,8 @@ func _input(event):
 	
 	elif event.is_action_pressed("testar"):
 		var start = Time.get_ticks_msec()
-		ability_system.test1()
+		#ability_system.test1()
+		ability_system.test_build_from_signature()
 		#ability_system.test2()
 		#ability_system.test3()
 		#ability_system.test4()

@@ -6,39 +6,36 @@ class_name AbilityData
 
 """NAO IMPLEMENTADO"""
 
-## Its tell how the system must deal when a duplicated effect are applied. 
-enum DUPLICATED_BEHAVIOURS {IGNORE=0, REPLACE=1, SUM=2, MULTIPLICATION=3}
+enum NOT_FOUND_BEHAVIOUR {IGNORE=0, RAISE_ERROR=1, AWAIT=2}
 
-## The specific name of the effect, for tracking and organization, like Burn, Freeze and etc...
-@export_placeholder("Effect Name") var effect_name: String
+## Its tell how the system must deal when a duplicated effect are applied.
+enum DUPLICATED_BEHAVIOUR {
+	IGNORE=0, REPLACE=1, KEEP_HIGHER=2, KEEP_LOWER=3, SUM=4, DEC=5, MULT=6, DIV=7
+}
 
-## Chose one of the existents effects, except for NOTHING, because well... its does nothing
-var effect_target: String
-
-## Its tell the system what position in the CalcFormula the effect will be added
-@export var chain_tag: String = "BUFF"
-
-## Chose one of the behaviours for the effects, this means, how the system must modify the property
-@export var duplicated_behaviour: DUPLICATED_BEHAVIOURS = DUPLICATED_BEHAVIOURS.IGNORE
-	
-## The duration of the effect, if 0 the effect will not be applied, if less than 0 the effect will be considered permanent.
-## A permanent effect are NOT removed automatically by the system with a cooldown
-@export var effect_duraction: float = 0.0
+## The specific name of the ability, for tracking and organization, like Burn, Freeze and etc...
+## This will be the same name used for the CalcNode added in the formula
+@export var name: String = ""
 
 ## The actual numeric value used to modify the target property
-@export_range(0.000001, 9999999) var effect_value: float:
-	set(new_effect_value):
-		
-		effect_value = new_effect_value
+@export var value: float = 0.0
 
-"""
-## Take the respective dictionary target, based on the effect_type
-func get_effect_target() -> Dictionary:
-	var effect_target: Dictionary = EFFECT_TARGETS[effect_type]
-	# Verify if the keys have any null value, this means the effect is not implemented yet, so will be ignored and a warning raised
-	if null not in effect_target.values():
-		return effect_target
-	else:
-		push_warning("The effect {0} was not implemented yet, since there is at least one null value on the respective EFFECT_TARGETS. Operation ignored".format([effect_name]))
-		return {}
-"""
+## The duration of the effect, if 0 the effect will not be applied, if less than 0 the effect will be considered permanent.
+## A permanent effect are NOT removed automatically by the system with a cooldown
+@export var duration: float = 0.0
+
+## Its tell the system what position in the CalcFormula the effect will be added
+@export var target_path: String = ""
+
+## What must be done if the designed path does not exist in the formula
+@export var not_found_behaviour: NOT_FOUND_BEHAVIOUR = NOT_FOUND_BEHAVIOUR.IGNORE
+
+## This tell how the system must deal if the same ability already be applied
+@export_group("Duplicated Behaviour")
+
+## How the system must modify the property
+@export var value_behaviour: DUPLICATED_BEHAVIOUR = DUPLICATED_BEHAVIOUR.IGNORE
+
+## How the system must modify the duration
+@export var duration_behaviour: DUPLICATED_BEHAVIOUR = DUPLICATED_BEHAVIOUR.IGNORE
+

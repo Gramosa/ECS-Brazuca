@@ -10,18 +10,14 @@ extends BaseComponent
 class_name AbilityComponent
 
 @export_group("Formula")
-## The initial signature of the formula.
-#@export var initial_formula_signature: String
-
-## The CalcFormula used to calculate new value
-#@export var formula: CalculationManager.CalcFormula
+## The formula used to calculate the designed property, of the designed component
+#@export var formula: CalcFormula
 
 @export_group("Ability")
 ## Availibe abilities the entity can apply to a given formula
 @export var availibe_abilities: Array[AbilityData]
 
 ## Effects that were applied to this component
-
 
 func _init() -> void:
 	super()

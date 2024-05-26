@@ -23,13 +23,66 @@ func test1():
 	print(formula.to_expression())
 	print(formula.evaluate())
 	
-	print("Teste de signature")
+	print("Teste de tokens")
 	var signatures: PackedStringArray = [
-		"(A + B) * C", "(A+B)*C", "D-(A*(C-B))", "(((A - B) * C) + D) - E",\
-		"(base + weapon) * enchantment"
+		"(A + B) * C", "(A+B)*C", "D-(A*(C-B))", "(((A - B) * C) + D) - E"\
 		]
 	for s in signatures:
 		print("signature {0}: tokens: {1}".format([s, CalcFormula.__tokenize_signature(s)]))
+	
+	print("Teste de signature")
+	var formula2: CalcFormula = CalcFormula.build_from_signature("((base + weapon) - duh) * enchantment")
+	print(formula2.to_expression())
+
+func test_build_from_signature():
+	var test_cases = [
+		# Simple cases
+		{"signature": "A+B", "expected": "(A+B)"},
+		{"signature": "A-B", "expected": "(A-B)"},
+		{"signature": "A*B", "expected": "(A*B)"},
+		{"signature": "A/B", "expected": "(A/B)"},
+		
+		# Nested expressions
+		{"signature": "(A+B)*C", "expected": "((A+B)*C)"},
+		{"signature": "A+(B*C)", "expected": "(A+(B*C))"},
+		{"signature": "((A+B)/C)-D", "expected": "(((A+B)/C)-D)"},
+
+		# Edge cases
+		{"signature": "((A+B)/C)+D", "expected": "(((A+B)/C)+D)"},
+		{"signature": "(A+(B-C))", "expected": "(A+(B-C))"},
+		{"signature": "((A*B)+(C/D))", "expected": "((A*B)+(C/D))"},
+		{"signature": "((base + weapon) - duh) * enchantment", "expected": "(((base+weapon)-duh)*enchantment)"},
+
+		# Error cases (should trigger errors or return null)
+		{"signature": "A++B", "expected": null},
+		{"signature": "A+B-", "expected": null},
+		{"signature": "A+(B*C))", "expected": null},
+		{"signature": "((A+B)*C", "expected": null},
+		{"signature": "", "expected": null},
+		{"signature": "+A+B", "expected": null},
+		{"signature": "A+B(C-D)", "expected": null},
+		{"signature": "A+A+A", "expected": null},
+		{"signature": "(A+B) * (A+B)", "expected": null}
+	]
+
+	for test_case in test_cases:
+		var signature = test_case["signature"]
+		var expected = test_case["expected"]
+
+		print("Testing signature: {0}".format([signature]))
+		var formula = CalcFormula.build_from_signature(signature)
+		if formula != null:
+			var result = formula.to_expression()
+			if result == expected:
+				print("PASSED: {0}".format([signature]))
+			else:
+				print("FAILED: {0}. Expected {1}, got {2}".format([signature, expected, result]))
+		else:
+			if expected == null:
+				print("PASSED: {0}".format([signature]))
+			else:
+				print("FAILED: {0}. Expected {1}, got null".format([signature, expected]))
+
 
 """
 ## A dictionary designed to map and track components and they properties, its may works together with _entities variable, but its not harded dependent, since its does not register the entity

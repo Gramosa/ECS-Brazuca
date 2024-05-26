@@ -7,23 +7,40 @@ class_name CalcFormula
 var _head: CalcNode
 var _calculator: Expression = Expression.new()
 
+## Build a tree from a start signature, which looks like a math formula but onty with the keys
+## Ex: (A + B) - C will be:
+## [root]
+## +-->[A]
+## |   +-->[+B]
+## +-->[-C]
+## Nested arrays that does not have the key between '(' are created with a dummy key
+## Ex: ((A + B) / C) + D
+## root
+##   dummy0
+##     A
+##       +B
+##     /C
+##   +D
 static func build_from_signature(signature: String) -> CalcFormula:
+	if signature.is_empty():
+		push_error("Cannot build from an empty signature!")
+		return null
 	
 	if(__check_parentesis(signature) == false):
 		push_error("Invalid signature {0}, wrong use of parentesis!".format([signature]))
 		return null
-	#(A+B)*C = (, A, +, B, ), *, C
-	#-A+B*(C-D) = -, A, +, B, *, (, C, -, D, )
+
 	const OPERATORS: PackedStringArray = ['+', '-', '*', '/', '^']
 	var tokens: PackedStringArray = __tokenize_signature(signature)
-	
+
 	var formula: CalcFormula = new()
 	
 	#helper variables
-	var stack: Array[CalcNode]
 	var current_node: CalcNode = formula._head
+	var stack: Array[CalcNode] = [current_node]
 	var operator: String = ""
 	var have_children: bool = false
+	var dummy_counter: int = 0
 	
 	for token in tokens:
 		if token in OPERATORS:
@@ -33,13 +50,41 @@ static func build_from_signature(signature: String) -> CalcFormula:
 				push_error("Consecutive operators in the signature {0}!".format([signature]))
 				return null
 		elif token == '(':
+			current_node = CalcNode.new("dummy" + str(dummy_counter), "", operator)
+			stack.back().add_child(current_node) # it may always work, since each dummy node have an unic incremental key
+			stack.push_back(current_node)
+			
 			have_children = true
+			dummy_counter += 1
 		elif token == ')':
-			pass
+			if not stack.is_empty():
+				stack.pop_back()
+			else:
+				push_error("Behaviour not expected, the stack is empty for signature {0}".format([signature]))
+				return null
 		else:
-			current_node._operator = operator
-			current_node._key = token
+			if have_children:
+				#TODO: Validate for simblings with the same key.
+				stack.back()._key = token
+				stack.back()._value = token
+				
+				have_children = false
+				dummy_counter -= 1
+			else:
+				current_node = CalcNode.new(token, token, operator)
+				if not stack.back().add_child(current_node):
+					push_error("Could not add the node {0} as child of {1}, for the signaturte {2}".format([token, stack.back()._key, signature]))
+					return null
+			
+			operator = ""
+		
+	if stack.size() != 1:
+		push_error("Behaviour not expected, in the end it expects only the head node to be at the stack, for the siganture {0}".format([signature]))
+		return null
 	
+	if operator != "":
+		push_error("Found a standalone operator at end of the signature {0}".format([signature]))
+		return null
 	
 	return formula
 

@@ -1,9 +1,10 @@
+@tool
 @icon("health_component_icon.svg")
-extends BaseComponent
+extends BrazucaBaseComponent
 
 ## HealthComponent are a component who deal with health every entity who can receive damage must own at least one
 ## This component is able to emit a health_points node (who have a short life, just to spam the actual health)
-class_name HealthComponent
+class_name BrazucaHealthComponent
 
 ## Emited when the health reach to 0 for the first time, this means when the entity become dead (in other words).
 signal health_depleted

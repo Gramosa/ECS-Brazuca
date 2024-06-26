@@ -8,16 +8,19 @@ var relative_gd_paths: Array[String]
 func _enter_tree() -> void:
 	# Create the "res://script_templates if does not exist"
 	create_directory(script_templates_folder)
-	
 	# Load the gd_paths with the .gd script inside ecs_brazuca_script_template folder and subfolders
 	copy_templates_paths(brazuca_templates_folder_path, script_templates_folder)
-	
 	# Just refresh the FileSystem
 	refresh_file_system()
 	
+	add_autoload_singleton("BrazucaMetadata", "res://addons/ecs_brazuca/singletons/metadata.gd")
+	
 func _exit_tree() -> void:
-	"""Add a way to delete the templates automatically in future, for now must be done manually"""
-	pass
+	#TODO: Verificar porque nao funciona
+	#delete_folder_recursive(script_templates_folder)
+	refresh_file_system()
+	
+	remove_autoload_singleton("BrazucaMetadata")
 
 ## Add the templates to the script_templates folder
 func copy_templates_paths(core_source_path: String, core_target_path: String, relative_folder_path: String = "") -> void:
@@ -54,6 +57,24 @@ func copy_templates_paths(core_source_path: String, core_target_path: String, re
 func create_directory(source_folder_path: String) -> void:
 	if DirAccess.dir_exists_absolute(source_folder_path) == false:
 		DirAccess.make_dir_absolute(source_folder_path)
+
+func delete_folder_recursive(path: String) -> void:
+	var dir: DirAccess = DirAccess.open(path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name: String = dir.get_next()
+		while file_name != "":
+			var file_path = path + "/" + file_name
+			if dir.current_is_dir():
+				delete_folder_recursive(file_path)
+			else:
+				var error: Error = dir.remove(path)
+				if error != OK:
+					push_error("Failed to delete the file: '{0}".format([file_path]))
+			
+			file_name = dir.get_next()
+	else:
+		push_error("Failed to open the directory '{0}".format([path]))
 
 func refresh_file_system() -> void:
 	var editor_interface : EditorInterface = get_editor_interface()

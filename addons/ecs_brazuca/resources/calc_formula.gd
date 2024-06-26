@@ -4,6 +4,8 @@ extends Resource
 ## It was designed to be utilized by the systems
 class_name CalcFormula
 
+@export var signature: String = ""
+
 var _head: CalcNode
 var _calculator: Expression = Expression.new()
 
@@ -21,22 +23,17 @@ var _calculator: Expression = Expression.new()
 ##       +B
 ##     /C
 ##   +D
-static func build_from_signature(signature: String) -> CalcFormula:
-	if signature.is_empty():
-		push_error("Cannot build from an empty signature!")
-		return null
+func build_from_signature() -> bool:
 	
 	if(__check_parentesis(signature) == false):
 		push_error("Invalid signature {0}, wrong use of parentesis!".format([signature]))
-		return null
+		return false
 
 	const OPERATORS: PackedStringArray = ['+', '-', '*', '/', '^']
 	var tokens: PackedStringArray = __tokenize_signature(signature)
-
-	var formula: CalcFormula = new()
 	
 	#helper variables
-	var current_node: CalcNode = formula._head
+	var current_node: CalcNode = _head
 	var stack: Array[CalcNode] = [current_node]
 	var operator: String = ""
 	var have_children: bool = false
@@ -48,7 +45,7 @@ static func build_from_signature(signature: String) -> CalcFormula:
 				operator = token
 			else:
 				push_error("Consecutive operators in the signature {0}!".format([signature]))
-				return null
+				return false
 		elif token == '(':
 			current_node = CalcNode.new("dummy" + str(dummy_counter), "", operator)
 			stack.back().add_child(current_node) # it may always work, since each dummy node have an unic incremental key
@@ -61,7 +58,7 @@ static func build_from_signature(signature: String) -> CalcFormula:
 				stack.pop_back()
 			else:
 				push_error("Behaviour not expected, the stack is empty for signature {0}".format([signature]))
-				return null
+				return false
 		else:
 			if have_children:
 				#TODO: Validate for simblings with the same key.
@@ -74,19 +71,19 @@ static func build_from_signature(signature: String) -> CalcFormula:
 				current_node = CalcNode.new(token, token, operator)
 				if not stack.back().add_child(current_node):
 					push_error("Could not add the node {0} as child of {1}, for the signaturte {2}".format([token, stack.back()._key, signature]))
-					return null
+					return false
 			
 			operator = ""
 		
 	if stack.size() != 1:
 		push_error("Behaviour not expected, in the end it expects only the head node to be at the stack, for the siganture {0}".format([signature]))
-		return null
+		return false
 	
 	if operator != "":
 		push_error("Found a standalone operator at end of the signature {0}".format([signature]))
-		return null
+		return false
 	
-	return formula
+	return true
 
 static func __check_parentesis(string: String) -> bool:
 	var count: int = 0
@@ -176,7 +173,7 @@ class CalcNode:
 		if key == '.':
 			return self
 		elif key == '..':
-			#beware of recursive or loop calls, it can lead to attempt of retrieving a parent of a null node
+			# Beware of recursive or loop calls, it can lead to attempt of retrieving a parent of a null node
 			return _parent.get_ref()
 		
 		for child in _children:

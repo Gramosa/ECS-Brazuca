@@ -1,7 +1,8 @@
+@tool
 @icon("damage_component_icon.svg")
-extends BaseComponent
+extends BrazucaBaseComponent
 
-class_name DamageComponent
+class_name BrazucaDamageComponent
 
 @export_group("Damage")
 ## The value of the Damage, negative values maeans healing
@@ -9,13 +10,6 @@ class_name DamageComponent
 
 ## The rate applied of the damage based on the damage, high ratio means more damage
 @export_range(0.001, 1000) var damage_ratio: float = 1
-
-@export_group("Effect")
-## If true effects can be applied according a AbilityComponent
-@export var apply_effect: bool = false
-
-## The effects applied, only works if apply_effect is true
-@export var effect_component: AbilityComponent
 
 func _init() -> void:
 	super()

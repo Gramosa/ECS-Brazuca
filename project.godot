@@ -15,6 +15,10 @@ run/main_scene="res://itens/test_material/scenes_examples/example1/test_ecs.tscn
 config/features=PackedStringArray("4.2", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+BrazucaMetadata="*res://addons/ecs_brazuca/singletons/metadata.gd"
+
 [display]
 
 window/size/viewport_width=576

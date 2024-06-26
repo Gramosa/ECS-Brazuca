@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 ## This is a base class that other components can inherit from in an Entity-Component-System (ECS) architecture.
@@ -6,7 +7,7 @@ extends Node
 ## This provides functionality to comunicate automatically the systems when the component are _ready or was removed
 ## The derived components must extends this class and:
 ## Do NOT override the functions _init, _ready and _exit_tree (Utilize super() in the beggining of these functions)
-class_name BaseComponent
+class_name BrazucaBaseComponent
 
 ## A general signal designed to be emitted when a proerty are depleted
 #signal property_depleted(property: String)
@@ -29,18 +30,12 @@ const COMPONENT_WARNINGS = {
 ## Used by get_closest_parent_from_type to search for the parent, check get_closest_parent_from_type()
 @export var target_entity_type: String = "Node2D"
 
-@export_group("ID Data")
-## If the data will be loaded from a IdentityComponent, it will ignore completly the exported values, and will load at runtime the values
-@export var take_from_id_component: bool = false
-
-## The IdentityComponent node, its preferable to be a simbling. The IdentityComponent load the data from the JSONS files at runtime execution
-@export var identity_component: IdentityComponent
-
 ## Actually the entity who belongs this component, does not modify direct, it are always updated automatically in the _enter_tree()
 ## check get_closest_parent_from_type()
 var _entity: Node = null
 
 func _init() -> void:
+	
 	add_to_group("Components", true)
 	
 

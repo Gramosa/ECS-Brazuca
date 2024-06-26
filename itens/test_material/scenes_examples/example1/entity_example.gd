@@ -2,8 +2,8 @@ extends Node2D
 
 # Called when the node enters the scene tree for the first time.
 #@onready var damage_system: DamageSystem = get_node("../Systems/DamageSystem")
-@onready var damage_system: DamageSystem =  get_node("%DamageSystem")
-@onready var ability_system: AbilitySystem = get_node("%AbilitySystem") as AbilitySystem
+@onready var damage_system: BrazucaDamageSystem =  get_node("%DamageSystem")
+@onready var ability_system: BrazucaAbilitySystem = get_node("%AbilitySystem") as BrazucaAbilitySystem
 @onready var aura: Sprite2D = get_node("Aura")
 
 var actual_health_component: String = "Shield"
@@ -30,6 +30,7 @@ func _input(event):
 # Called by both HealthComponent
 # Maybe pass the component name with signal???
 func _on_health_component_health_changed(old_health: float, new_health: float):
+	return
 	if new_health < old_health:
 		"""Lembrando que o sistema de efeito ainda nao foi totalmente implementado"""
 		#ability_system.apply_ability(self, self, "Endurance", "", "PrimaryHealth")

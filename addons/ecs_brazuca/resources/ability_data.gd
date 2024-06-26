@@ -2,10 +2,9 @@
 @tool
 extends Resource
 
-class_name AbilityData
+class_name BrazucaAbilityData
 
-"""NAO IMPLEMENTADO"""
-
+## Its tell how the system must deal when an target path does not exist.
 enum NOT_FOUND_BEHAVIOUR {IGNORE=0, RAISE_ERROR=1, AWAIT=2}
 
 ## Its tell how the system must deal when a duplicated effect are applied.

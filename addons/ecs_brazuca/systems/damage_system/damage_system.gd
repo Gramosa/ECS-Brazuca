@@ -1,7 +1,7 @@
 @icon("damage_system_icon.svg")
-extends BaseSystem
+extends BrazucaBaseSystem
 
-class_name DamageSystem
+class_name BrazucaDamageSystem
 
 func _init() -> void:
 	super()
@@ -13,11 +13,11 @@ func _init() -> void:
 ## specific_component_name only is necessary if the entity have two or more componenets from the same group
 func do_damage(source_entity: Node, target_entity: Node, logic: Callable, oposite_behaviour: bool = false, source_component_name: String = "", target_component_name: String = "") -> void:
 	# The source_entity must have at least one component from DamageComponentGroup, and target_entity at least one HealthComponent
-	var target_component: HealthComponent = get_component_from_entity(target_entity, "HealthComponentGroup", target_component_name)
+	var target_component: BrazucaHealthComponent = get_component_from_entity(target_entity, "HealthComponentGroup", target_component_name)
 	if target_component == null:
 		return
 		
-	var source_component: DamageComponent = get_component_from_entity(source_entity, "DamageComponentGroup", source_component_name)
+	var source_component: BrazucaDamageComponent = get_component_from_entity(source_entity, "DamageComponentGroup", source_component_name)
 	if source_component == null:
 		return
 	
@@ -29,13 +29,13 @@ func do_damage(source_entity: Node, target_entity: Node, logic: Callable, oposit
 		target_component.update_health(-damage)
 
 func do_normal_damage(source_entity: Node, target_entity: Node, source_component_name: String = "", target_component_name: String = "") -> void:
-	var logic: Callable = func(source_component: DamageComponent, target_component: HealthComponent) -> float:
+	var logic: Callable = func(source_component: BrazucaDamageComponent, target_component: BrazucaHealthComponent) -> float:
 		return source_component.get_real_damage() / target_component.get_resistance_ratio()
 	
 	return do_damage(source_entity, target_entity, logic, false, source_component_name, target_component_name)
 
 func do_true_damage(source_entity: Node, target_entity: Node, source_component_name: String = "", target_component_name: String = "") -> void:
-	var logic: Callable = func(source_component: DamageComponent, target_component: HealthComponent) -> float:
+	var logic: Callable = func(source_component: BrazucaDamageComponent, target_component: BrazucaHealthComponent) -> float:
 		return source_component.get_damage()
 	
 	return do_damage(source_entity, target_entity, logic, false, source_component_name, target_component_name)

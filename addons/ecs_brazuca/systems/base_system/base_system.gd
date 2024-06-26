@@ -5,7 +5,7 @@ extends Node
 ## The derived systems should extend this class and:
 ## - Define their own required component groups in the `_components_requireds` variable on _init.
 ## - Do NOT override the _init() function (Utilize super() after define the required components)
-class_name BaseSystem
+class_name BrazucaBaseSystem
 
 ## An array of component groups names that entities must belong to in order to be added to the `entities` dictionary.
 ## Each component must be in at least one of these groups to be considered by the system.
@@ -196,7 +196,7 @@ func can_system_operate_entity(entity: Node, component_group: String, specific_c
 
 ## Work with can_system_operate_entity function, this function will return the component instead of true or false
 ## Usualy used by the system to take the reference of the component
-func get_component_from_entity(entity: Node, component_group: String, specific_component_name: String = "") -> BaseComponent:
+func get_component_from_entity(entity: Node, component_group: String, specific_component_name: String = "") -> BrazucaBaseComponent:
 	var entity_id: int = entity.get_instance_id()
 	if can_system_operate_entity(entity, component_group, specific_component_name):
 		## If passes the tests with specific_component_name equal to "", means there is only one component from the component_group

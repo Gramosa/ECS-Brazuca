@@ -1,7 +1,7 @@
 """PARCIALMENTE IMPLEMENTADO"""
-extends BaseComponent
+extends BrazucaBaseComponent
 
-class_name IdentityComponent
+class_name BrazucaIdentityComponent
 
 @export_group("JsonLoader Configuration")
 ## MUST have the json_loader.gd as an autoload of the game named JsonLoader

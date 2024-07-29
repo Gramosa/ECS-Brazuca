@@ -1,9 +1,7 @@
 extends Node2D
 
-# Called when the node enters the scene tree for the first time.
-#@onready var damage_system: DamageSystem = get_node("../Systems/DamageSystem")
-@onready var damage_system: BrazucaDamageSystem =  get_node("%DamageSystem")
-@onready var ability_system: BrazucaAbilitySystem = get_node("%AbilitySystem") as BrazucaAbilitySystem
+@onready var damage_system: BRZDamageSystem =  get_node("%DamageSystem")
+@onready var ability_system: BRZAbilitySystem = get_node("%AbilitySystem") as BRZAbilitySystem
 @onready var aura: Sprite2D = get_node("Aura")
 
 var actual_health_component: String = "Shield"

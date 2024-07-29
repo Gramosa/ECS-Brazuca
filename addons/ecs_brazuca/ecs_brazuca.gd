@@ -13,14 +13,14 @@ func _enter_tree() -> void:
 	# Just refresh the FileSystem
 	refresh_file_system()
 	
-	add_autoload_singleton("BrazucaMetadata", "res://addons/ecs_brazuca/singletons/metadata.gd")
+	add_autoload_singleton("BRZMetadata", "res://addons/ecs_brazuca/singletons/metadata.gd")
 	
 func _exit_tree() -> void:
 	#TODO: Verificar porque nao funciona
 	#delete_folder_recursive(script_templates_folder)
 	refresh_file_system()
 	
-	remove_autoload_singleton("BrazucaMetadata")
+	remove_autoload_singleton("BRZMetadata")
 
 ## Add the templates to the script_templates folder
 func copy_templates_paths(core_source_path: String, core_target_path: String, relative_folder_path: String = "") -> void:

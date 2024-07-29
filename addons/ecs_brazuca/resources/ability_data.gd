@@ -2,7 +2,7 @@
 @tool
 extends Resource
 
-class_name BrazucaAbilityData
+class_name BRZAbilityData
 
 ## Its tell how the system must deal when an target path does not exist.
 enum NOT_FOUND_BEHAVIOUR {IGNORE=0, RAISE_ERROR=1, AWAIT=2}

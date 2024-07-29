@@ -1,9 +1,9 @@
 """NÃO FUNCIONAL, NÃO IMPLEMENTADO"""
 """Falta possibilitar a remoção do efeito aplicado"""
 
-extends BrazucaBaseSystem
+extends BRZBaseSystem
 
-class_name BrazucaAbilitySystem
+class_name BRZAbilitySystem
 
 var CN := CalcFormula.CalcNode
 

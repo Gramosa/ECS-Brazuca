@@ -1,10 +1,10 @@
 @tool
 @icon("health_component_icon.svg")
-extends BrazucaBaseComponent
+extends BRZBaseComponent
 
 ## HealthComponent are a component who deal with health every entity who can receive damage must own at least one
 ## This component is able to emit a health_points node (who have a short life, just to spam the actual health)
-class_name BrazucaHealthComponent
+class_name BRZHealthComponent
 
 ## Emited when the health reach to 0 for the first time, this means when the entity become dead (in other words).
 signal health_depleted
@@ -59,9 +59,8 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 ## Does NOT change health directly, utilize update_health.
 var health: float
 
-func _init():
-	super()
-	add_to_group("HealthComponentGroup", true)
+func get_class_name():
+	return "BRZHealthComponent"
 
 func get_health() -> float:
 	return health

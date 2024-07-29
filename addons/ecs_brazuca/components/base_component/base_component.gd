@@ -7,7 +7,7 @@ extends Node
 ## This provides functionality to comunicate automatically the systems when the component are _ready or was removed
 ## The derived components must extends this class and:
 ## Do NOT override the functions _init, _ready and _exit_tree (Utilize super() in the beggining of these functions)
-class_name BrazucaBaseComponent
+class_name BRZBaseComponent
 
 ## A general signal designed to be emitted when a proerty are depleted
 #signal property_depleted(property: String)
@@ -21,7 +21,7 @@ signal property_changed(property: String, old_value: float, new_value: float)
 ## General warnings used for the components to notify when something are not configured, the node will work 
 const COMPONENT_WARNINGS = {
 	"COMPONENT WARNING 1": "The Signal {0} from component {1} is not connected, the component still works, but for this specific signal there is not any purpose",
-	"COMPONENT WARNING 2": "There is not any System in the scene_tree(), the component will not work properly, since there is not a system to manage it",
+	"COMPONENT WARNING 2": "BRZMetadata needs to be added as singleton in the scene_tree(), the component will not work properly, since there is not a system to manage it",
 }
 
 ## If true warnings will not be emitted if a signal are not connected
@@ -34,15 +34,26 @@ const COMPONENT_WARNINGS = {
 ## check get_closest_parent_from_type()
 var _entity: Node = null
 
-func _init() -> void:
-	
-	add_to_group("Components", true)
-	
+func get_class_name() -> String:
+	## To mimetize an abstract class
+	assert(false, "This method should be overrided in the children classes")
+	return ""
 
 func _ready() -> void:
 	#Verify if the signals was connected
 	if ignore_signal_warnings == false:
 		verify_connections()
+
+func _to_string() -> String:
+	var txt: String = get_name()
+	txt += "| {0}".format([get_class_name()])
+	if _entity != null:
+		txt += "| {0}".format([_entity.get_name()])
+	else:
+		txt += "| NO ENTITY"
+	
+	
+	return txt
 
 func verify_connections() -> void:
 	if len(property_changed.get_connections()) == 0:
@@ -65,22 +76,22 @@ static func get_closest_parent_from_type(node: Node, parent_type: String) -> Nod
 		
 		parent = parent.get_parent()
 	
-	push_warning("The node \"{0}\" does not have a parent who have \"{1}\" as ancestor, the own node \"{0}\" will be returned instead".format([node, parent_type]))
-	return node
+	push_warning("The node \"{0}\" does not have a parent who have \"{1}\" as ancestor".format([node, parent_type]))
+	return null
 
 func _enter_tree() -> void:
 	_entity = get_closest_parent_from_type(self, target_entity_type)
 	
 	# Once the component is inside the tree it will tell all Systems calling _on_component_added for all Systems pass self as argument
-	if get_tree().has_group("Systems") == true:
-		get_tree().call_group("Systems", "_on_component_added", self)
+	if ProjectSettings.has_setting("autoload/BRZMetadata"):
+		BRZMetadata.register_component(self)
 	else:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
 
 func _exit_tree() -> void:
 	# If there is a system in the tree, it will comunicate each system about the remotion, so each system can deal with this remotion
-	if get_tree().has_group("Systems") == true:
-		get_tree().call_group_flags(SceneTree.GROUP_CALL_UNIQUE, "Systems", "_on_component_removed", self)
+	if ProjectSettings.has_setting("autoload/BRZMetadata"):
+		BRZMetadata.unregister_component(self)
 	else:
 		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 2"])
 

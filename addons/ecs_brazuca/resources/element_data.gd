@@ -1,5 +1,5 @@
 """NÃO IMPLEMENTADO AINDA, NÃO FUNCIONAL"""
 extends Resource
 
-class_name BrazucaElementData
+class_name BRZElementData
 

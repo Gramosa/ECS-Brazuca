@@ -1,4 +1,4 @@
 """NAO IMPLEMENTADO AINDA, NÃO FUNCIONAL"""
-extends BaseComponent
+extends BRZBaseComponent
 
 class_name ContainerComponent

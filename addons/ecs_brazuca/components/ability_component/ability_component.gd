@@ -23,8 +23,8 @@ class_name BRZAbilityComponent
 ## Availibe abilities the entity can apply to the formula
 @export var availibe_abilities: Array[BRZAbilityData]
 
-func get_class_name() -> String:
-	return "BRZAbilityComponent"
+#func get_class_name() -> String:
+	#return "BRZAbilityComponent"
 
 func _validate_property(property: Dictionary):
 	if property.name == "target_component":
@@ -35,6 +35,9 @@ func _validate_property(property: Dictionary):
 			counter += 1
 		
 		property.hint_string = txt
+	
+	elif property.name == "target_property":
+		pass
 
 func get_availibe_abilities() -> Array[BRZAbilityData]:
 	if availibe_abilities.is_empty():

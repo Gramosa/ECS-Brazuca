@@ -11,8 +11,8 @@ class_name BRZDamageComponent
 ## The rate applied of the damage based on the damage, high ratio means more damage
 @export_range(0.001, 1000) var damage_ratio: float = 1
 
-func get_class_name() -> String:
-	return "BRZDamageComponent"
+#func get_class_name() -> String:
+	#return "BRZDamageComponent"
 
 func get_damage():
 	return damage

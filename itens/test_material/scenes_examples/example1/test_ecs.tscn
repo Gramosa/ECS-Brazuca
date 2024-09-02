@@ -44,7 +44,6 @@ position = Vector2(293, 166)
 script = ExtResource("4_aj5qr")
 max_health = 500000.0
 initial_health = 500000.0
-ignore_signal_warnings = true
 
 [node name="Shield" type="Node" parent="PlayerTest" groups=["Components", "HealthComponentGroup"]]
 script = ExtResource("4_aj5qr")
@@ -54,7 +53,6 @@ resistance_ratio = 10.0
 color_nothing_changed = Color(0.635294, 0.34902, 0.294118, 1)
 color_damaged = Color(0.819608, 0.596078, 0.737255, 1)
 color_healed = Color(0.4, 0.54902, 1, 1)
-ignore_signal_warnings = true
 
 [node name="DamageComponent" type="Node" parent="PlayerTest" groups=["Components", "DamageComponentGroup"]]
 script = ExtResource("5_a4o2q")
@@ -66,7 +64,6 @@ target_component = 3
 target_property = "damage"
 formula = SubResource("Resource_dyt5w")
 availibe_abilities = Array[ExtResource("7_1ns1s")]([SubResource("Resource_xn0ke")])
-ignore_signal_warnings = true
 
 [node name="Entities" type="Node2D" parent="."]
 script = ExtResource("8_3chi4")

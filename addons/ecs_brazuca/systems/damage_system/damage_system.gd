@@ -12,11 +12,11 @@ func _init() -> void:
 ## specific_component_name only is necessary if the entity have two or more componenets from the same group
 func do_damage(source_entity: Node, target_entity: Node, logic: Callable, oposite_behaviour: bool = false, source_component_name: String = "", target_component_name: String = "") -> void:
 	# The source_entity must have at least one component from DamageComponentGroup, and target_entity at least one HealthComponent
-	var target_component: BRZHealthComponent = BRZMetadata.get_component_from_entity(target_entity, "BRZHealthComponent", target_component_name)
+	var target_component: BRZHealthComponent = get_component_from_entity(target_entity, "BRZHealthComponent", target_component_name)
 	if target_component == null:
 		return
 		
-	var source_component: BRZDamageComponent = BRZMetadata.get_component_from_entity(source_entity, "BRZDamageComponent", source_component_name)
+	var source_component: BRZDamageComponent = get_component_from_entity(source_entity, "BRZDamageComponent", source_component_name)
 	if source_component == null:
 		return
 	

@@ -59,9 +59,6 @@ const health_points_path: PackedScene = preload("health_points.tscn")
 ## Does NOT change health directly, utilize update_health.
 var health: float
 
-func get_class_name():
-	return "BRZHealthComponent"
-
 func get_health() -> float:
 	return health
 
@@ -72,21 +69,6 @@ func _ready() -> void:
 	super()
 	
 	health = initial_health
-
-# Verify if the necessary connections was made, can be by editor or before the call for verify_connections in _ready()
-func verify_connections() -> void:
-	super()
-	if len(health_depleted.get_connections()) == 0:
-		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([health_depleted.get_name(), self.get_name()]))
-	
-	if len(health_recovered.get_connections()) == 0:
-		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([health_recovered.get_name(), self.get_name()]))
-	
-	if len(health_changed.get_connections()) == 0:
-		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([health_changed.get_name(), self.get_name()]))
-		
-	if len(resistance_ratio_changed.get_connections()) == 0:
-		push_warning(COMPONENT_WARNINGS["COMPONENT WARNING 1"].format([resistance_ratio_changed.get_name(), self.get_name()]))
 
 func update_health(damage: float) -> void:
 	

@@ -3,7 +3,7 @@ extends Area2D
 const VELOCITY: float = 500.0
 const MAX_DISTANCE: float = 200.0
 
-@onready var damage_system: DamageSystem = get_tree().get_root().get_node("Example2/DamageSystem")
+@onready var damage_system: BRZDamageSystem = get_tree().get_root().get_node("Example2/DamageSystem")
 var _direction: Vector2
 var _caster: Node
 
@@ -30,6 +30,6 @@ func _destroy_spell():
 	self.queue_free()
 
 func _on_area_entered(area: Area2D) -> void:
-	if area != _caster:
-		damage_system.do_damage(self, area)
+	#if area != _caster:
+		#damage_system.do_damage(self, area)
 	pass
